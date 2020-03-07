@@ -1,0 +1,3 @@
+---
+- name: Build Kraken
+  shell: cd {{ playbook_dir }}/../.. ; make

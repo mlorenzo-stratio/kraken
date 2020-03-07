@@ -58,3 +58,7 @@ env*
 
 # For integration tests.
 .tmptest/
+
+# Vagrant files
+vagrant/.vagrant
+vagrant/*/*.retry

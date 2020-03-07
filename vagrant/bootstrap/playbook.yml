@@ -1,0 +1,39 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Build kraken
+      import_role:
+        name: bootstrap-kraken
+        tasks_from: build-kraken
+
+- hosts: all
+  become: true
+  tasks:
+    - name: Import agent tasks from bootstrap-kraken role
+      import_role:
+        name: bootstrap-kraken
+        tasks_from: agent
+
+- hosts: proxy
+  become: true
+  tasks:
+    - name: Import proxy tasks from bootstrap-kraken role
+      import_role:
+        name: bootstrap-kraken
+        tasks_from: proxy
+
+- hosts: tracker
+  become: true
+  tasks:
+    - name: Import tracker tasks from bootstrap-kraken role
+      import_role:
+        name: bootstrap-kraken
+        tasks_from: tracker
+
+- hosts: build-index
+  become: true
+  tasks:
+    - name: Import build-index tasks from bootstrap-kraken role
+      import_role:
+        name: bootstrap-kraken
+        tasks_from: build-index

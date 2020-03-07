@@ -1,0 +1,60 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+
+cluster={
+  "a1" => {
+    :box => "centos/7",
+    :ram => 2048,
+    :cpu => 4
+  },
+  "a2" => {
+    :box => "centos/7",
+    :ram => 2048,
+    :cpu => 4
+  },
+  "a3" => {
+    :box => "centos/7",
+    :ram => 2048,
+    :cpu => 4
+  },
+  "a4" => {
+    :box => "centos/7",
+    :ram => 2048,
+    :cpu => 4
+  }
+}
+
+Vagrant.configure("2") do |config|
+  # Only one rsa key for all hosts, the insecure key
+  config.ssh.insert_key = false
+
+  cluster.each_with_index do |(hostname, machine), index|
+    config.vm.define hostname do |node|
+      node.vm.box = machine[:box]
+      node.vm.hostname = hostname
+      node.vm.provider "libvirt" do |vb|
+        vb.memory = machine[:ram]
+        vb.cpus = machine[:cpu]
+      end # end customize
+
+      # Use :ansible or :ansible_local to
+      # select the provisioner of your choice
+      if index == cluster.size - 1
+        config.vm.provision :ansible do |ansible|
+          ansible.limit = 'all,localhost'
+          ansible.playbook = "bootstrap/playbook.yml"
+          ansible.groups = {
+            "proxy" => ["a1"],
+            "tracker" => ["a2"],
+            "build-index" => ["a3"]
+          }
+        end # end provision
+      end # end if
+    end # end config
+  end # end cluster
+end # end vagrant
