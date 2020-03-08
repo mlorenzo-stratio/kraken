@@ -1,12 +1,12 @@
 ---
-- hosts: localhost
+- hosts: proxy
   tasks:
     - name: Build kraken
       import_role:
         name: bootstrap-kraken
         tasks_from: build-kraken
 
-- hosts: all
+- hosts: agents
   become: true
   tasks:
     - name: Import agent tasks from bootstrap-kraken role
@@ -21,6 +21,14 @@
       import_role:
         name: bootstrap-kraken
         tasks_from: proxy
+
+- hosts: origin
+  become: true
+  tasks:
+    - name: Import origin tasks from bootstrap-kraken role
+      import_role:
+        name: bootstrap-kraken
+        tasks_from: origin
 
 - hosts: tracker
   become: true
