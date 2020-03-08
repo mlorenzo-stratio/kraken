@@ -62,3 +62,7 @@ env*
 # Vagrant files
 vagrant/.vagrant
 vagrant/*/*.retry
+
+# Redis build
+redis/redis-*
+redis/bin
