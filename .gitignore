@@ -66,3 +66,6 @@ vagrant/*/*.retry
 # Redis build
 redis/redis-*
 redis/bin
+
+# Kraken binaries build
+bin/
