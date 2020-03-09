@@ -39,6 +39,9 @@ LINUX_BINS = \
 REGISTRY ?= gcr.io/uber-container-tools
 
 build: $(LINUX_BINS)
+	mkdir -p bin/
+	cp ./agent/agent ./build-index/build-index ./origin/origin ./proxy/proxy ./tools/bin/testfs/testfs ./tracker/tracker bin/
+	redis/build.sh
 
 agent/agent:: $(wildcard agent/*.go)
 	$(CROSS_COMPILER)

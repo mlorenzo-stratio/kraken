@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+DIR=$(dirname "$0")
+cd "$DIR" || exit 1
 VERSION="5.0.7"
 REDIS_VERSION="redis-$VERSION"
 REDIS_FILE="$REDIS_VERSION.tar.gz"
@@ -14,5 +16,5 @@ cd /target
 make
 chown -R $UID:${GROUPS[0]} /target
 COMMANDS
-mkdir -p bin
+mkdir -p bin/
 cp "$PWD/$REDIS_VERSION"/src/redis-{server,benchmark,cli,check-rdb,check-aof} bin/
