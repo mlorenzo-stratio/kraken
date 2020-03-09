@@ -6,7 +6,7 @@
         name: bootstrap-kraken
         tasks_from: build-kraken
 
-- hosts: agents
+- hosts: kraken-agents
   become: true
   tasks:
     - name: Import agent tasks from bootstrap-kraken role
@@ -14,13 +14,13 @@
         name: bootstrap-kraken
         tasks_from: agent
 
-- hosts: proxy
+- hosts: redis
   become: true
   tasks:
-    - name: Import proxy tasks from bootstrap-kraken role
+    - name: Import redis tasks from bootstrap-kraken role
       import_role:
         name: bootstrap-kraken
-        tasks_from: proxy
+        tasks_from: redis
 
 - hosts: origin
   become: true
