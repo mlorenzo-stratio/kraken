@@ -6,6 +6,7 @@ source examples/devcluster/herd_param.sh
 
 # Start kraken herd.
 docker run -d \
+    --add-host host.docker.internal:127.0.0.1 \
     -p ${TESTFS_PORT}:${TESTFS_PORT} \
     -p ${ORIGIN_SERVER_PORT}:${ORIGIN_SERVER_PORT} \
     -p ${ORIGIN_PEER_PORT}:${ORIGIN_PEER_PORT} \

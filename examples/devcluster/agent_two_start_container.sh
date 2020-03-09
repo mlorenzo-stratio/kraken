@@ -6,6 +6,7 @@ source examples/devcluster/agent_two_param.sh
 
 # Start kraken agent.
 docker run -d \
+    --add-host host.docker.internal:$(docker inspect kraken-herd | jq '.[].NetworkSettings.Networks.bridge.IPAddress' -r) \
     -p ${AGENT_PEER_PORT}:${AGENT_PEER_PORT} \
     -p ${AGENT_SERVER_PORT}:${AGENT_SERVER_PORT} \
     -p ${AGENT_REGISTRY_PORT}:${AGENT_REGISTRY_PORT} \
