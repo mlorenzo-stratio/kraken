@@ -45,15 +45,15 @@ Vagrant.configure("2") do |config|
       # Use :ansible or :ansible_local to
       # select the provisioner of your choice
       if index == cluster.size - 1
-        config.vm.provision :ansible do |ansible|
+        node.vm.provision :ansible do |ansible|
           ansible.limit = 'all,localhost'
           ansible.playbook = "bootstrap/playbook.yml"
           ansible.groups = {
             "agents" => ["a1", "a2", "a3", "a4"],
             "proxy" => ["a1"],
             "build-index" => ["a2"],
-            "tracker" => ["agents"],
-            "origin" => ["agents"]
+            "tracker" => ["a1", "a2", "a3", "a4"],
+            "origin" => ["a1", "a2", "a3", "a4"]
           }
         end # end provision
       end # end if

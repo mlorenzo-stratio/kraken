@@ -1,5 +1,5 @@
 ---
-- hosts: proxy
+- hosts: localhost
   tasks:
     - name: Build kraken
       import_role:

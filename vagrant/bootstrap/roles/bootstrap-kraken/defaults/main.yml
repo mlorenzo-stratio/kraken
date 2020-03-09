@@ -1,5 +1,3 @@
 ---
-kraken_git_repository: "https://github.com/mlorenzo-stratio/kraken.git"
-local_kraken_git_repository: "/usr/local/src"
 kraken_config_dir: "/etc/kraken/config"
 kraken_binary_dir: "/usr/local/bin"

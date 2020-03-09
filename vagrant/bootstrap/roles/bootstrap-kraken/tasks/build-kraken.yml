@@ -1,18 +1,4 @@
 ---
 
-- name: Install packages
-  yum:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - git
-    - docker
-
-- name: Download kraken repository
-  git:
-    repo: "{{ kraken_git_repository }}"
-    dest: "{{ local_kraken_git_repository }}"
-    update: yes
-
 - name: Build Kraken
-  shell: cd {{ local_kraken_git_repository }} ; make build
+  shell: cd {{ playbook_dir }}/../.. ; make
