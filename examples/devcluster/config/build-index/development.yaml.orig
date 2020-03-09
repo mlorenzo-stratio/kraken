@@ -1,25 +1,51 @@
 extends: base.yaml
 
 backends:
-  - namespace: .*
+  - namespace: library/.*
     backend:
-      registry_blob:
-        address: qa.stratio.com
+      registry_tag:
+        address: index.docker.io
         security:
           basic:
             username: ""
             password: ""
+  - namespace: .*
+    backend:
+      testfs:
+        addr: host.docker.internal:14000
+        root: tags
+        name_path: docker_tag
 
 cluster:
-  static:
-    - host.docker.internal:15002
+  hosts:
+    static:
+      - host.docker.internal:15004
 
-hashring:
-  max_replica: 2
+origin:
+  hosts:
+    static:
+      - host.docker.internal:15002
+
+remotes: {}
+
+tag_replication:
+  retry_interval: 100ms
+  poll_retries_interval: 250ms
+
+tag_types:
+  - namespace: .*
+    type: docker
+    root: tags
+
+tag_store:
+  write_through: false
 
 writeback:
   retry_interval: 100ms
   poll_retries_interval: 250ms
+
+nginx:
+  cache_dir: /tmp/kraken-build-index-nginx/
 
 tls:
   name: kraken

@@ -1,14 +1,20 @@
 extends: base.yaml
 
 backends:
-  - namespace: .*
+  - namespace: library/.*
     backend:
       registry_blob:
-        address: qa.stratio.com
+        address: index.docker.io
         security:
           basic:
             username: ""
             password: ""
+  - namespace: .*
+    backend:
+      testfs:
+        addr: host.docker.internal:14000
+        root: blobs
+        name_path: identity
 
 cluster:
   static:
