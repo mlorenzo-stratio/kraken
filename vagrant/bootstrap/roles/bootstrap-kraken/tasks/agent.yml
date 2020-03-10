@@ -22,3 +22,111 @@
 # COPY ./test/tls /etc/kraken/tls
 
 # WORKDIR /etc/kraken
+
+
+
+# # Define agent ports.
+# AGENT_REGISTRY_PORT=16000
+# AGENT_PEER_PORT=16001
+# AGENT_SERVER_PORT=16002
+
+# # Hostname for docker for mac.
+# HOSTNAME=host.docker.internal
+
+# # Container config.
+# AGENT_CONTAINER_NAME=kraken-agent-one
+
+# # Start kraken agent.
+# docker run -d \
+#     --add-host host.docker.internal:$(docker inspect kraken-herd | jq '.[].NetworkSettings.Networks.bridge.IPAddress' -r) \
+#     -p ${AGENT_PEER_PORT}:${AGENT_PEER_PORT} \
+#     -p ${AGENT_SERVER_PORT}:${AGENT_SERVER_PORT} \
+#     -p ${AGENT_REGISTRY_PORT}:${AGENT_REGISTRY_PORT} \
+#     -v $(pwd)/examples/devcluster/config/agent/development.yaml:/etc/kraken/config/agent/development.yaml \
+#     --name ${AGENT_CONTAINER_NAME} \
+#     kraken-agent:dev \
+#     /usr/bin/kraken-agent --config=/etc/kraken/config/agent/development.yaml --peer-ip=${HOSTNAME} --peer-port=${AGENT_PEER_PORT} --agent-server-port=${AGENT_SERVER_PORT} --agent-registry-port=${AGENT_REGISTRY_PORT}
+
+- name: Install EPEL repository
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Install packages
+  yum:
+    name: ['curl', 'nginx']
+    state: latest
+
+- name: Create kraken group
+  group:
+    name: "{{ kraken_group }}"
+    state: present
+    system: yes
+
+- name: Create kraken-agent user
+  user:
+    name: "{{ kraken_agent_user }}"
+    group: "{{ kraken_group }}"
+    state: present
+    system: yes
+
+- name: Create kraken-agent folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ kraken_agent_user }}"
+    group: "{{ kraken_group }}"
+  with_items: "{{ kraken_agent_folders }}"
+
+- name: Install kraken-agent
+  copy:
+    src: "{{ kraken_agent_binary_src }}"
+    dest: "{{ kraken_agent_binary }}"
+    mode: 0755
+    owner: "{{ kraken_agent_user }}"
+    group: "{{ kraken_group }}"
+
+- name: Create kraken-agent configuration files
+  template:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    mode: 0644
+    owner: "{{ kraken_agent_user }}"
+    group: "{{ kraken_group }}"
+  with_dict: "{{ kraken_config_files.kraken_agent_templates }}"
+  notify: Restart kraken-agent service
+
+- name: Copy kraken-agent configuration files
+  copy:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    mode: 0644
+    owner: "{{ kraken_agent_user }}"
+    group: "{{ kraken_group }}"
+  with_dict: "{{ kraken_config_files.kraken_agent_files }}"
+  notify: Restart kraken-agent service
+
+- name: Copy TLS certificates
+  template:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    mode: 0600
+    owner: "{{ kraken_agent_user }}"
+    group: "{{ kraken_group }}"
+  with_dict: "{{ kraken_tls_certificates.kraken_agent }}"
+  notify: Restart kraken-agent service
+
+- name: Create systemd unit for kraken-agent service
+  template:
+    src: kraken-agent.service.j2
+    dest: "{{ kraken_agent_service }}"
+  notify: Restart kraken-agent service
+
+- name: Start kraken-agent service
+  systemd:
+    name: kraken-agent
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  register: start_kraken_agent

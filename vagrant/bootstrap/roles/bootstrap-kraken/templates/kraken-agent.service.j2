@@ -1,0 +1,22 @@
+[Unit]
+Description=kraken-agent
+After=network.target
+
+[Service]
+Restart=always
+StartLimitInterval=0
+RestartSec=15
+TimeoutStartSec=120
+TimeoutStopSec=15
+PermissionsStartOnly=true
+User={{ kraken_agent_user }}
+ExecStartPre=/usr/bin/bash -c "mkdir -p {{ kraken_socket_dir }} {{ kraken_agent_nginx_folders }}; chown -R {{ kraken_agent_user }}:{{ kraken_group }} {{ kraken_socket_dir }} {{ kraken_agent_nginx_folders }}"
+ExecStart={{ kraken_binary_dir }}/kraken-agent \
+          --config={{ kraken_config_dir }}/kraken-agent.yaml \
+          --peer-ip={{ kraken_herd_host }} \
+          --peer-port={{ kraken_agent_peer_port }} \
+          --agent-server-port={{ kraken_agent_server_port }} \
+          --agent-registry-port={{ kraken_agent_registry_port }}
+
+[Install]
+WantedBy=multi-user.target

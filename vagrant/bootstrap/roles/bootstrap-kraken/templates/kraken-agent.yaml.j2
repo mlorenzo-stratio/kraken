@@ -1,0 +1,62 @@
+{#
+extends: base.yaml
+
+scheduler:
+  connstate:
+    blacklist_duration: 5s
+
+peer_id_factory: random
+
+tracker:
+  hosts:
+    static: {trackers}
+
+build_index:
+  hosts:
+    static: {build_indexes}
+
+tls:
+  name: kraken
+  cas:
+  - path: /etc/kraken/tls/ca/server.crt
+  server:
+    disabled: true
+  client:
+    cert:
+      path: /etc/kraken/tls/client/client.crt
+    key:
+      path: /etc/kraken/tls/client/client.key
+    passphrase:
+      path: /etc/kraken/tls/client/passphrase
+#}
+extends: base.yaml
+
+tracker:
+  hosts:
+    static:
+      - {{ kraken_herd_host }}:15003
+
+build_index:
+  hosts:
+    static:
+      - {{ kraken_herd_host }}:15004
+
+tls:
+  name: kraken
+  cas:
+  - path: {{ kraken_agent_server_crt }}
+  server:
+    disabled: false
+    cert:
+      path: {{ kraken_agent_server_crt }}
+    key:
+      path: {{ kraken_agent_server_key }}
+    passphrase:
+      path: {{ kraken_agent_server_passphrase }}
+  client:
+    cert:
+      path: {{ kraken_agent_client_crt }}
+    key:
+      path: {{ kraken_agent_client_key }}
+    passphrase:
+      path: {{ kraken_agent_client_passphrase }}

@@ -1,3 +1,75 @@
 ---
+kraken_repo_root: "{{ playbook_dir }}/../.."
+redis_binaries_dir: "{{ kraken_repo_root }}/redis/bin"
+kraken_binaries_dir: "{{ kraken_repo_root }}/bin"
+systemd_dir: "/etc/systemd/system"
+
+# kraken global variables
+kraken_herd_host: "{{ hostvars['kraken-herd'].ansible_host }}"
 kraken_config_dir: "/etc/kraken"
 kraken_binary_dir: "/usr/local/bin"
+kraken_socket_dir: "/run/kraken"
+kraken_group: "kraken"
+
+# kraken services configuration files
+kraken_config_files:
+  kraken_agent_templates:
+    base:
+      src: "kraken-agent_base.yaml.j2"
+      dest: "{{ kraken_config_dir }}/base.yaml"
+    config:
+      src: "kraken-agent.yaml.j2"
+      dest: "{{ kraken_config_dir }}/kraken-agent.yaml"
+  kraken_agent_files:
+    nginx_config:
+      src: "{{ kraken_repo_root }}/nginx/config/"
+      dest: "{{ kraken_config_dir }}/nginx/config/"
+
+# kraken tls certificate files
+kraken_tls_certificates:
+  kraken_agent:
+    server_crt:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.crt"
+      dest: "{{ kraken_agent_server_crt }}"
+    server_key:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.key"
+      dest: "{{ kraken_agent_server_key }}"
+    server_passphrase:
+      src: "{{ kraken_repo_root }}/test/tls/ca/passphrase"
+      dest: "{{ kraken_agent_server_passphrase }}"
+    client_crt:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.crt"
+      dest: "{{ kraken_agent_client_crt }}"
+    client_key:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.key"
+      dest: "{{ kraken_agent_client_key }}"
+    client_passphrase:
+      src: "{{ kraken_repo_root }}/test/tls/client/passphrase"
+      dest: "{{ kraken_agent_client_passphrase }}"
+
+# kraken-agent
+kraken_agent_binary_src: "{{ kraken_binaries_dir }}/agent"
+kraken_agent_binary: "{{ kraken_binary_dir }}/kafka-agent"
+kraken_agent_service: "{{ systemd_dir }}/kraken-agent.service"
+kraken_agent_registry_port: 32001
+kraken_agent_peer_port: 32002
+kraken_agent_server_port: 32003
+kraken_agent_user: "kraken-agent"
+kraken_agent_registry_socket: "{{ kraken_socket_dir }}/kraken-agent-registry.sock"
+kraken_agent_tls_folder: "{{ kraken_config_dir }}/tls"
+kraken_agent_server_crt: "{{ kraken_agent_tls_folder }}/server.crt"
+kraken_agent_server_key: "{{ kraken_agent_tls_folder }}/server.key"
+kraken_agent_server_passphrase: "{{ kraken_agent_tls_folder }}/server.passphrase"
+kraken_agent_client_crt: "{{ kraken_agent_tls_folder }}/client.crt"
+kraken_agent_client_key: "{{ kraken_agent_tls_folder }}/client.key"
+kraken_agent_client_passphrase: "{{ kraken_agent_tls_folder }}/client.passphrase"
+kraken_agent_log_folder: "/var/log/kraken/kraken-agent"
+kraken_agent_cache_folder: "/var/cache/kraken/kraken-agent"
+kraken_agent_nginx_folders: "/tmp/nginx/ /var/lib/nginx/ /var/log/nginx/ /var/run/nginx/"
+kraken_agent_folders:
+  - "{{ kraken_config_dir }}/nginx/config"
+  - "{{ kraken_agent_tls_folder }}"
+  - "{{ kraken_agent_log_folder }}"
+  - "{{ kraken_agent_cache_folder }}/nginx"
+  - "{{ kraken_agent_cache_folder }}/cache"
+  - "{{ kraken_agent_cache_folder }}/download"

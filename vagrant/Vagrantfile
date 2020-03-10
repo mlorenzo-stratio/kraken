@@ -56,7 +56,7 @@ Vagrant.configure("2") do |config|
           ansible.groups = {
             "agents" => ["kraken-agent-1", "kraken-agent-2", "kraken-agent-3", "kraken-agent-4"],
             "origin" => ["kraken-herd"],
-            "build-index" => ["kraken-herd"],
+            "build_index" => ["kraken-herd"],
             "tracker" => ["kraken-herd"],
             "redis" => ["kraken-herd"]
           }
