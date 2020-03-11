@@ -1,6 +1,5 @@
-- name: Restart kraken-agent service
+- name: Start/Restart kraken-agent service
   systemd:
     name: kraken-agent
     enabled: yes
     state: restarted
-  when: start_kraken_agent is not changed

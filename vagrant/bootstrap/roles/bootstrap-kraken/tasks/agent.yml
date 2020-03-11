@@ -57,76 +57,15 @@
     name: ['curl', 'nginx']
     state: latest
 
-- name: Create kraken group
-  group:
-    name: "{{ kraken_group }}"
-    state: present
-    system: yes
-
-- name: Create kraken-agent user
-  user:
-    name: "{{ kraken_agent_user }}"
-    group: "{{ kraken_group }}"
-    state: present
-    system: yes
-
-- name: Create kraken-agent folders
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: 0755
-    owner: "{{ kraken_agent_user }}"
-    group: "{{ kraken_group }}"
-  with_items: "{{ kraken_agent_folders }}"
-
 - name: Install kraken-agent
-  copy:
-    src: "{{ kraken_agent_binary_src }}"
-    dest: "{{ kraken_agent_binary }}"
-    mode: 0755
-    owner: "{{ kraken_agent_user }}"
+  import_tasks: install_kraken_service.yml
+  vars:
+    service: kraken-agent
+    tls_enabled: yes
+    user: "{{ kraken_agent_user }}"
     group: "{{ kraken_group }}"
-
-- name: Create kraken-agent configuration files
-  template:
-    src: "{{ item.value.src }}"
-    dest: "{{ item.value.dest }}"
-    mode: 0644
-    owner: "{{ kraken_agent_user }}"
-    group: "{{ kraken_group }}"
-  with_dict: "{{ kraken_config_files.kraken_agent_templates }}"
-  notify: Restart kraken-agent service
-
-- name: Copy kraken-agent configuration files
-  copy:
-    src: "{{ item.value.src }}"
-    dest: "{{ item.value.dest }}"
-    mode: 0644
-    owner: "{{ kraken_agent_user }}"
-    group: "{{ kraken_group }}"
-  with_dict: "{{ kraken_config_files.kraken_agent_files }}"
-  notify: Restart kraken-agent service
-
-- name: Copy TLS certificates
-  template:
-    src: "{{ item.value.src }}"
-    dest: "{{ item.value.dest }}"
-    mode: 0600
-    owner: "{{ kraken_agent_user }}"
-    group: "{{ kraken_group }}"
-  with_dict: "{{ kraken_tls_certificates.kraken_agent }}"
-  notify: Restart kraken-agent service
-
-- name: Create systemd unit for kraken-agent service
-  template:
-    src: kraken-agent.service.j2
-    dest: "{{ kraken_agent_service }}"
-  notify: Restart kraken-agent service
-
-- name: Start kraken-agent service
-  systemd:
-    name: kraken-agent
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  register: start_kraken_agent
+    service_folders: "{{ kraken_agent_folders }}"
+    service_binary_files: "{{ binary_files.kraken_agent }}"
+    service_config_templates: "{{ config_files.kraken_agent_templates }}"
+    service_config_files: "{{ config_files.kraken_agent_files }}"
+    service_tls_certificates: "{{ tls_certificates.kraken_agent }}"

@@ -1,0 +1,63 @@
+---
+
+- name: Create {{ group }} group
+  group:
+    name: "{{ group }}"
+    state: present
+    system: yes
+
+- name: Create {{ user }} user
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    state: present
+    system: yes
+
+- name: Create {{ service }} folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_items: "{{ service_folders }}"
+
+- name: Install {{ service }}
+  copy:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    mode: 0755
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_dict: "{{ service_binary_files }}"
+
+- name: Create {{ service }} configuration files
+  template:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    mode: 0644
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_dict: "{{ service_config_templates }}"
+  notify: Restart {{ service }} service
+
+- name: Copy {{ service }} configuration files
+  copy:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    mode: 0644
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_dict: "{{ service_config_files }}"
+  notify: Restart {{ service }} service
+
+- name: Copy {{ service }} TLS certificates
+  template:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    mode: 0600
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_dict: "{{ service_tls_certificates }}"
+  when: tls_enabled
+  notify: Restart {{ service }} service

@@ -11,45 +11,9 @@ kraken_binary_dir: "/usr/local/bin"
 kraken_socket_dir: "/run/kraken"
 kraken_group: "kraken"
 
-# kraken services configuration files
-kraken_config_files:
-  kraken_agent_templates:
-    base:
-      src: "kraken-agent_base.yaml.j2"
-      dest: "{{ kraken_config_dir }}/base.yaml"
-    config:
-      src: "kraken-agent.yaml.j2"
-      dest: "{{ kraken_config_dir }}/kraken-agent.yaml"
-  kraken_agent_files:
-    nginx_config:
-      src: "{{ kraken_repo_root }}/nginx/config/"
-      dest: "{{ kraken_config_dir }}/nginx/config/"
-
-# kraken tls certificate files
-kraken_tls_certificates:
-  kraken_agent:
-    server_crt:
-      src: "{{ kraken_repo_root }}/test/tls/ca/server.crt"
-      dest: "{{ kraken_agent_server_crt }}"
-    server_key:
-      src: "{{ kraken_repo_root }}/test/tls/ca/server.key"
-      dest: "{{ kraken_agent_server_key }}"
-    server_passphrase:
-      src: "{{ kraken_repo_root }}/test/tls/ca/passphrase"
-      dest: "{{ kraken_agent_server_passphrase }}"
-    client_crt:
-      src: "{{ kraken_repo_root }}/test/tls/client/client.crt"
-      dest: "{{ kraken_agent_client_crt }}"
-    client_key:
-      src: "{{ kraken_repo_root }}/test/tls/client/client.key"
-      dest: "{{ kraken_agent_client_key }}"
-    client_passphrase:
-      src: "{{ kraken_repo_root }}/test/tls/client/passphrase"
-      dest: "{{ kraken_agent_client_passphrase }}"
-
 # kraken-agent
 kraken_agent_binary_src: "{{ kraken_binaries_dir }}/agent"
-kraken_agent_binary: "{{ kraken_binary_dir }}/kafka-agent"
+kraken_agent_binary: "{{ kraken_binary_dir }}/kraken-agent"
 kraken_agent_service: "{{ systemd_dir }}/kraken-agent.service"
 kraken_agent_registry_port: 32001
 kraken_agent_peer_port: 32002
@@ -73,3 +37,58 @@ kraken_agent_folders:
   - "{{ kraken_agent_cache_folder }}/nginx"
   - "{{ kraken_agent_cache_folder }}/cache"
   - "{{ kraken_agent_cache_folder }}/download"
+
+# redis for kraken-tracker
+redis_binaries_src: "{{ kraken_repo_root }}/redis/bin/"
+redis_binaries: "{{ kraken_binary_dir }}/"
+redis_service: "{{ systemd_dir }}/redis.service"
+
+# kraken services binary files
+binary_files:
+  kraken_agent:
+    kraken_agent_binary:
+      src: "{{ kraken_agent_binary_src }}"
+      dest: "{{ kraken_agent_binary }}"
+  redis:
+    redis_binaries:
+      src: "{{ kraken_repo_root }}/redis/bin/"
+      dest: "{{ kraken_binary_dir }}/"
+
+# kraken services configuration files
+config_files:
+  kraken_agent_templates:
+    base:
+      src: "kraken-agent_base.yaml.j2"
+      dest: "{{ kraken_config_dir }}/base.yaml"
+    config:
+      src: "kraken-agent.yaml.j2"
+      dest: "{{ kraken_config_dir }}/kraken-agent.yaml"
+    systemd:
+      src: kraken-agent.service.j2
+      dest: "{{ kraken_agent_service }}"
+  kraken_agent_files:
+    nginx_config:
+      src: "{{ kraken_repo_root }}/nginx/config/"
+      dest: "{{ kraken_config_dir }}/nginx/config/"
+
+# kraken tls certificate files
+tls_certificates:
+  kraken_agent:
+    server_crt:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.crt"
+      dest: "{{ kraken_agent_server_crt }}"
+    server_key:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.key"
+      dest: "{{ kraken_agent_server_key }}"
+    server_passphrase:
+      src: "{{ kraken_repo_root }}/test/tls/ca/passphrase"
+      dest: "{{ kraken_agent_server_passphrase }}"
+    client_crt:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.crt"
+      dest: "{{ kraken_agent_client_crt }}"
+    client_key:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.key"
+      dest: "{{ kraken_agent_client_key }}"
+    client_passphrase:
+      src: "{{ kraken_repo_root }}/test/tls/client/passphrase"
+      dest: "{{ kraken_agent_client_passphrase }}"

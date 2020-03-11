@@ -6,9 +6,9 @@ redis-server --port ${REDIS_PORT} &
 
 sleep 3
 
-/usr/bin/kraken-testfs \
-    --port=${TESTFS_PORT} \
-    &>/var/log/kraken/kraken-testfs/stdout.log &
+# /usr/bin/kraken-testfs \
+#     --port=${TESTFS_PORT} \
+#     &>/var/log/kraken/kraken-testfs/stdout.log &
 
 /usr/bin/kraken-origin \
     --config=/etc/kraken/config/origin/development.yaml \
@@ -28,17 +28,18 @@ sleep 3
     --port=${BUILD_INDEX_PORT} \
     &>/var/log/kraken/kraken-build-index/stdout.log &
 
-/usr/bin/kraken-proxy \
-    --config=/etc/kraken/config/proxy/development.yaml \
-    --port=${PROXY_PORT} \
-    --server-port=${PROXY_SERVER_PORT} \
-    &>/var/log/kraken/kraken-proxy/stdout.log &
+#/usr/bin/kraken-proxy \
+#    --config=/etc/kraken/config/proxy/development.yaml \
+#    --port=${PROXY_PORT} \
+#    --server-port=${PROXY_SERVER_PORT} \
+#    &>/var/log/kraken/kraken-proxy/stdout.log &
 
 sleep 3
 
 # Poor man's supervisor.
 while : ; do
-    for c in redis-server kraken-testfs kraken-origin kraken-tracker kraken-build-index kraken-proxy; do
+    # for c in redis-server kraken-testfs kraken-origin kraken-tracker kraken-build-index kraken-proxy; do
+    for c in redis-server kraken-origin kraken-tracker kraken-build-index; do
         ps aux | grep $c | grep -q -v grep
         status=$?
         if [ $status -ne 0 ]; then
