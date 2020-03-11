@@ -1,0 +1,21 @@
+[Unit]
+Description={{ service }}
+After=network.target
+
+[Service]
+Type=notify
+Restart=always
+StartLimitInterval=0
+RestartSec=15
+TimeoutStartSec=120
+TimeoutStopSec=15
+PermissionsStartOnly=true
+User={{ user }}
+Group={{ group }}
+LimitNOFILE=10032
+ExecStartPre=/bin/sh -c "/usr/bin/echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+ExecStartPre=/bin/sh -c "/usr/bin/echo never > /sys/kernel/mm/transparent_hugepage/defrag"
+ExecStart={{ redis_binaries }}/redis-server {{ kraken_config_dir }}/redis.conf
+
+[Install]
+WantedBy=multi-user.target

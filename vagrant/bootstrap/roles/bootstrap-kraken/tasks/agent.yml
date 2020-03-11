@@ -61,7 +61,6 @@
   import_tasks: install_kraken_service.yml
   vars:
     service: kraken-agent
-    tls_enabled: yes
     user: "{{ kraken_agent_user }}"
     group: "{{ kraken_group }}"
     service_folders: "{{ kraken_agent_folders }}"

@@ -5,6 +5,7 @@
     name: "{{ group }}"
     state: present
     system: yes
+  when: group is defined
 
 - name: Create {{ user }} user
   user:
@@ -12,6 +13,7 @@
     group: "{{ group }}"
     state: present
     system: yes
+  when: user is defined
 
 - name: Create {{ service }} folders
   file:
@@ -21,6 +23,7 @@
     owner: "{{ user }}"
     group: "{{ group }}"
   with_items: "{{ service_folders }}"
+  when: service_folders is defined
 
 - name: Install {{ service }}
   copy:
@@ -30,6 +33,8 @@
     owner: "{{ user }}"
     group: "{{ group }}"
   with_dict: "{{ service_binary_files }}"
+  notify: Start {{ service }} service
+  when: service_binary_files is defined
 
 - name: Create {{ service }} configuration files
   template:
@@ -39,7 +44,8 @@
     owner: "{{ user }}"
     group: "{{ group }}"
   with_dict: "{{ service_config_templates }}"
-  notify: Restart {{ service }} service
+  notify: Start {{ service }} service
+  when: service_config_templates is defined
 
 - name: Copy {{ service }} configuration files
   copy:
@@ -49,7 +55,8 @@
     owner: "{{ user }}"
     group: "{{ group }}"
   with_dict: "{{ service_config_files }}"
-  notify: Restart {{ service }} service
+  notify: Start {{ service }} service
+  when: service_config_files is defined
 
 - name: Copy {{ service }} TLS certificates
   template:
@@ -59,5 +66,5 @@
     owner: "{{ user }}"
     group: "{{ group }}"
   with_dict: "{{ service_tls_certificates }}"
-  when: tls_enabled
-  notify: Restart {{ service }} service
+  notify: Start {{ service }} service
+  when: service_tls_certificates is defined

@@ -6,6 +6,14 @@
 #         name: bootstrap-kraken
 #         tasks_from: build-kraken
 
+- hosts: redis
+  become: true
+  tasks:
+    - name: Import redis tasks from bootstrap-kraken role
+      import_role:
+        name: bootstrap-kraken
+        tasks_from: redis
+
 - hosts: agents
   become: true
   tasks:
@@ -13,14 +21,6 @@
       import_role:
         name: bootstrap-kraken
         tasks_from: agent
-
-# - hosts: redis
-#   become: true
-#   tasks:
-#     - name: Import redis tasks from bootstrap-kraken role
-#       import_role:
-#         name: bootstrap-kraken
-#         tasks_from: redis
 
 - hosts: origin
   become: true
