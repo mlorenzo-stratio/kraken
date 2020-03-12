@@ -1,22 +1,26 @@
 {#
 extends: base.yaml
 
-tracker:
-  hosts:
-    static:
-      - host.docker.internal:15003
+peerstore:
+  redis:
+    addr: 127.0.0.1:14001
 
-build_index:
+origin:
   hosts:
     static:
-      - host.docker.internal:15004
+      - host.docker.internal:15002
+
+trackerserver:
+  announce_interval: 3s
+
+nginx:
+  cache_dir: /tmp/kraken-tracker-nginx/
 
 tls:
   name: kraken
   cas:
   - path: /etc/kraken/tls/ca/server.crt
   server:
-    disabled: true
     cert:
       path: /etc/kraken/tls/ca/server.crt
     key:
@@ -30,40 +34,41 @@ tls:
       path: /etc/kraken/tls/client/client.key
     passphrase:
       path: /etc/kraken/tls/client/passphrase
+
 #}
 
 extends: base.yaml
 
-tracker:
+peerstore:
+  redis:
+    addr: 127.0.0.1:{{ redis_port }}
+
+origin:
   hosts:
     static:
 {% for herd_host in kraken_herd_hosts %}
-      - {{ herd_host }}:{{ kraken_tracker_port }}
+      - {{ herd_host }}:{{ kraken_origin_server_port }}
 {% endfor %}
 
-build_index:
-  hosts:
-    static:
-{% for herd_host in kraken_herd_hosts %}
-      - {{ herd_host }}:{{ kraken_build_index_port }}
-{% endfor %}
+trackerserver:
+  announce_interval: 3s
 
 tls:
   name: kraken
   cas:
-  - path: {{ kraken_agent_server_crt }}
+  - path: {{ kraken_tracker_server_crt }}
   server:
     disabled: false
     cert:
-      path: {{ kraken_agent_server_crt }}
+      path: {{ kraken_tracker_server_crt }}
     key:
-      path: {{ kraken_agent_server_key }}
+      path: {{ kraken_tracker_server_key }}
     passphrase:
-      path: {{ kraken_agent_server_passphrase }}
+      path: {{ kraken_tracker_server_passphrase }}
   client:
     cert:
-      path: {{ kraken_agent_client_crt }}
+      path: {{ kraken_tracker_client_crt }}
     key:
-      path: {{ kraken_agent_client_key }}
+      path: {{ kraken_tracker_client_key }}
     passphrase:
-      path: {{ kraken_agent_client_passphrase }}
+      path: {{ kraken_tracker_client_passphrase }}
