@@ -3,45 +3,45 @@
 #   tasks:
 #     - name: Build kraken
 #       import_role:
-#         name: bootstrap-kraken
+#         name: kraken
 #         tasks_from: build-kraken
 
 - hosts: redis
   become: true
   tasks:
-    - name: Import redis tasks from bootstrap-kraken role
+    - name: Import redis tasks from kraken role
       import_role:
-        name: bootstrap-kraken
+        name: kraken
         tasks_from: redis
 
 - hosts: agents
   become: true
   tasks:
-    - name: Import agent tasks from bootstrap-kraken role
+    - name: Import agent tasks from kraken role
       import_role:
-        name: bootstrap-kraken
+        name: kraken
         tasks_from: agent
 
 - hosts: origin
   become: true
   tasks:
-    - name: Import origin tasks from bootstrap-kraken role
+    - name: Import origin tasks from kraken role
       import_role:
-        name: bootstrap-kraken
+        name: kraken
         tasks_from: origin
 
 - hosts: tracker
   become: true
   tasks:
-    - name: Import tracker tasks from bootstrap-kraken role
+    - name: Import tracker tasks from kraken role
       import_role:
-        name: bootstrap-kraken
+        name: kraken
         tasks_from: tracker
 
 - hosts: build_index
   become: true
   tasks:
-    - name: Import build-index tasks from bootstrap-kraken role
+    - name: Import build-index tasks from kraken role
       import_role:
-        name: bootstrap-kraken
+        name: kraken
         tasks_from: build-index

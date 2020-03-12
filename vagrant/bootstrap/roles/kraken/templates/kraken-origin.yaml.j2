@@ -1,0 +1,94 @@
+{#
+extends: base.yaml
+
+backends:
+  - namespace: library/.*
+    backend:
+      registry_blob:
+        address: index.docker.io
+        security:
+          basic:
+            username: ""
+            password: ""
+  - namespace: .*
+    backend:
+      testfs:
+        addr: host.docker.internal:14000
+        root: blobs
+        name_path: identity
+
+cluster:
+  static:
+    - host.docker.internal:15002
+
+hashring:
+  max_replica: 2
+
+writeback:
+  retry_interval: 100ms
+  poll_retries_interval: 250ms
+
+tls:
+  name: kraken
+  cas:
+  - path: /etc/kraken/tls/ca/server.crt
+  server:
+    cert:
+      path: /etc/kraken/tls/ca/server.crt
+    key:
+      path: /etc/kraken/tls/ca/server.key
+    passphrase:
+      path: /etc/kraken/tls/ca/passphrase
+  client:
+    cert:
+      path: /etc/kraken/tls/client/client.crt
+    key:
+      path: /etc/kraken/tls/client/client.key
+    passphrase:
+      path: /etc/kraken/tls/client/passphrase
+#}
+
+extends: base.yaml
+
+backends:
+  - namespace: library/.*
+    backend:
+      registry_blob:
+        address: index.docker.io
+        security:
+          basic:
+            username: ""
+            password: ""
+
+cluster:
+  static:
+{% for herd_host in kraken_herd_hosts %}
+    - {{ herd_host }}:{{ kraken_origin_server_port }}
+{% endfor %}
+
+hashring:
+  max_replica: 2
+
+writeback:
+  retry_interval: 100ms
+  poll_retries_interval: 250ms
+
+tls:
+  name: kraken
+  cas:
+  - path: {{ kraken_origin_server_crt }}
+  server:
+    disabled: false
+    cert:
+      path: {{ kraken_origin_server_crt }}
+    key:
+      path: {{ kraken_origin_server_key }}
+    passphrase:
+      path: {{ kraken_origin_server_passphrase }}
+  client:
+    cert:
+      path: {{ kraken_origin_client_crt }}
+    key:
+      path: {{ kraken_origin_client_key }}
+    passphrase:
+      path: {{ kraken_origin_client_passphrase }}

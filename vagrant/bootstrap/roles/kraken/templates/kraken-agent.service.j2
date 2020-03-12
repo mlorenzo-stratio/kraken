@@ -15,7 +15,9 @@ Group={{ group }}
 ExecStartPre=/usr/bin/mkdir -p {{ kraken_socket_dir }} {{ kraken_agent_nginx_folders | join(' ') }} ; /usr/bin/chown -R {{ user }}:{{ group }} {{ kraken_socket_dir }} {{ kraken_agent_nginx_folders | join(' ') }}
 ExecStart={{ kraken_agent_binary }} \
           --config={{ kraken_config_dir }}/kraken-agent.yaml \
-          --peer-ip={{ kraken_herd_host }} \
+{% for herd_host in kraken_herd_hosts %}
+          --peer-ip={{ herd_host }} \
+{% endfor %}
           --peer-port={{ kraken_agent_peer_port }} \
           --agent-server-port={{ kraken_agent_server_port }} \
           --agent-registry-port={{ kraken_agent_registry_port }}

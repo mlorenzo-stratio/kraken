@@ -1,19 +1,15 @@
 {#
 extends: base.yaml
 
-scheduler:
-  connstate:
-    blacklist_duration: 5s
-
-peer_id_factory: random
-
 tracker:
   hosts:
-    static: {trackers}
+    static:
+      - host.docker.internal:15003
 
 build_index:
   hosts:
-    static: {build_indexes}
+    static:
+      - host.docker.internal:15004
 
 tls:
   name: kraken
@@ -21,6 +17,12 @@ tls:
   - path: /etc/kraken/tls/ca/server.crt
   server:
     disabled: true
+    cert:
+      path: /etc/kraken/tls/ca/server.crt
+    key:
+      path: /etc/kraken/tls/ca/server.key
+    passphrase:
+      path: /etc/kraken/tls/ca/passphrase
   client:
     cert:
       path: /etc/kraken/tls/client/client.crt
@@ -29,17 +31,22 @@ tls:
     passphrase:
       path: /etc/kraken/tls/client/passphrase
 #}
+
 extends: base.yaml
 
 tracker:
   hosts:
     static:
-      - {{ kraken_herd_host }}:15003
+{% for herd_host in kraken_herd_hosts %}
+      - {{ herd_host }}:{{ kraken_origin_tracker_port }}
+{% endfor %}
 
 build_index:
   hosts:
     static:
-      - {{ kraken_herd_host }}:15004
+{% for herd_host in kraken_herd_hosts %}
+      - {{ herd_host }}:{{ kraken_origin_build_index_port }}
+{% endfor %}
 
 tls:
   name: kraken
