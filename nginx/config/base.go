@@ -17,8 +17,9 @@ package config
 const BaseTemplate = `
 worker_processes 4;
 worker_rlimit_nofile 4096;
-pid /tmp/nginx.pid;
-user root root;
+#pid /tmp/nginx.pid;
+pid /dev/null;
+#user root root;
 
 events {
   worker_connections 2048;
@@ -82,7 +83,7 @@ http {
   ##
 
   # access_log /var/log/nginx/access.log;
-  error_log /var/log/nginx/error.log;
+  # error_log /var/log/nginx/error.log;
 
   # JSON log_format
   log_format json '{'

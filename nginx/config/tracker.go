@@ -26,8 +26,8 @@ server {
 
   {{.client_verification}}
 
-  access_log {{.log_dir}}/nginx-access.log;
-  error_log {{.log_dir}}/nginx-error.log;
+  access_log /dev/stdout;
+  error_log stderr;
 
   location / {
     proxy_pass http://tracker;

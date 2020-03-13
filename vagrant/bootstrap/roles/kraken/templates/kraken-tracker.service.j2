@@ -12,8 +12,8 @@ TimeoutStopSec=15
 PermissionsStartOnly=true
 User={{ user }}
 Group={{ group }}
-
-ExecStartPre=/usr/bin/mkdir -p {{ kraken_tracker_socket_dir }} {{ kraken_tracker_nginx_folders | join(' ') }} ; /usr/bin/chown -R {{ user }}:{{ group }} {{ kraken_tracker_socket_dir }} {{ kraken_tracker_nginx_folders | join(' ') }}
+ExecStartPre=/usr/bin/bash -c "if ! kill -0 $MAINPID; then rm -f {{ kraken_tracker_socket }}; fi"
+ExecStartPre=/usr/bin/mkdir -p {{ kraken_tracker_socket_dir }} ; /usr/bin/chown -R {{ user }}:{{ group }} {{ kraken_tracker_socket_dir }}
 ExecStart={{ kraken_tracker_binary }} \
           --config={{ kraken_config_dir }}/kraken-tracker.yaml \
           --port={{ kraken_tracker_port }}

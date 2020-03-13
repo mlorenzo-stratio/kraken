@@ -5,6 +5,7 @@
     name: "{{ group }}"
     state: present
     system: yes
+  notify: Start {{ service }} service
   when: group is defined
 
 - name: Create {{ user }} user
@@ -13,16 +14,18 @@
     group: "{{ group }}"
     state: present
     system: yes
+  notify: Start {{ service }} service
   when: user is defined
 
 - name: Create {{ service }} folders
   file:
-    path: "{{ item }}"
+    path: "{{ item.value.path }}"
     state: directory
-    mode: 0755
+    mode: "{{ item.value.mode }}"
     owner: "{{ user }}"
     group: "{{ group }}"
-  with_items: "{{ service_folders }}"
+  with_dict: "{{ service_folders }}"
+  notify: Start {{ service }} service
   when: service_folders is defined
 
 - name: Install {{ service }}
@@ -58,6 +61,16 @@
   notify: Start {{ service }} service
   when: service_config_files is defined
 
+- name: Set correct files permissions
+  file:
+    path: "{{ item.value.path }}"
+    mode: "{{ item.value.mode }}"
+    state: file
+    group: "{{ group }}"
+  with_dict: "{{ files_permissions }}"
+  notify: Start {{ service }} service
+  when: fix_permissions | default(false) | bool
+
 - name: Copy {{ service }} TLS certificates
   template:
     src: "{{ item.value.src }}"
@@ -68,3 +81,10 @@
   with_dict: "{{ service_tls_certificates }}"
   notify: Start {{ service }} service
   when: service_tls_certificates is defined
+
+- name: Start {{ service }} service
+  systemd:
+    daemon_reload: yes
+    name: "{{ service }}"
+    enabled: yes
+    state: started

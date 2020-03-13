@@ -6,8 +6,12 @@ systemd_dir: /etc/systemd/system
 kraken_herd_hosts: "{{ groups['herd'] | map('extract', hostvars, ['ansible_fqdn']) | list }}"
 kraken_config_dir: /etc/kraken
 kraken_binary_dir: /usr/local/bin
+kraken_cache_dir: /var/cache/kraken
+kraken_nginx_dir: /var/cache/nginx
+kraken_nginx_log: /var/log/nginx
 kraken_socket_dir: /run/kraken
 kraken_group: kraken
+
 
 # kraken-agent
 kraken_agent_binary_src: "{{ kraken_binaries_dir }}/agent"
@@ -27,19 +31,42 @@ kraken_agent_client_crt: "{{ kraken_agent_tls_folder }}/client.crt"
 kraken_agent_client_key: "{{ kraken_agent_tls_folder }}/client.key"
 kraken_agent_client_passphrase: "{{ kraken_agent_tls_folder }}/client.passphrase"
 kraken_agent_log_folder: /var/log/kraken/kraken-agent
-kraken_agent_cache_folder: /var/cache/kraken/kraken-agent
-kraken_agent_nginx_folders:
-  - /tmp/nginx/
-  - /var/lib/nginx/
-  - /var/log/nginx/
-  - /var/run/nginx/
+kraken_agent_cache_folder: "{{ kraken_cache_dir }}/kraken-agent"
 kraken_agent_folders:
-  - "{{ kraken_config_dir }}/nginx/config"
-  - "{{ kraken_agent_tls_folder }}"
-  - "{{ kraken_agent_log_folder }}"
-  - "{{ kraken_agent_cache_folder }}/nginx"
-  - "{{ kraken_agent_cache_folder }}/cache"
-  - "{{ kraken_agent_cache_folder }}/download"
+  nginx_dir:
+    path: "{{ kraken_nginx_dir }}"
+    mode: "0775"
+  nginx_lib:
+    path: /var/lib/nginx/
+    mode: "0775"
+  nginx_lib_tmp:
+    path: /var/lib/nginx/tmp
+    mode: "0775"
+  nginx_log:
+    path: "{{ kraken_nginx_log }}"
+    mode: "0775"
+  nginx_run:
+    path: /var/run/nginx/
+    mode: "0775"
+  nginx_config:
+    path: "{{ kraken_config_dir }}/nginx/config"
+    mode: "0775"
+  tls:
+    path: "{{ kraken_agent_tls_folder }}"
+    mode: "0755"
+  log:
+    path: "{{ kraken_agent_log_folder }}"
+    mode: "0755"
+  nginx_cache:
+    path: "{{ kraken_agent_cache_folder }}/nginx"
+    mode: "0755"
+  agent_cache:
+    path: "{{ kraken_agent_cache_folder }}/cache"
+    mode: "0755"
+  agent_download:
+    path: "{{ kraken_agent_cache_folder }}/download"
+    mode: "0755"
+
 
 # redis for redis
 redis_binaries_src: "{{ kraken_repo_root }}/redis/bin/"
@@ -47,18 +74,22 @@ redis_binaries: "{{ kraken_binary_dir }}"
 redis_service: "{{ systemd_dir }}/redis.service"
 redis_port: 6379
 redis_user: redis
-redis_cache_folder: /var/cache/kraken/redis
+redis_cache_folder: "{{ kraken_cache_dir }}/redis"
 redis_folders:
-  - "{{ kraken_config_dir }}"
-  - "{{ redis_cache_folder }}"
+  config:
+    path: "{{ kraken_config_dir }}"
+    mode: "0755"
+  cache:
+    path: "{{ redis_cache_folder }}"
+    mode: "0755"
+
 
 # kraken-origin
 kraken_origin_binary_src: "{{ kraken_binaries_dir }}/origin"
 kraken_origin_binary: "{{ kraken_binary_dir }}/kraken-origin"
 kraken_origin_service: "{{ systemd_dir }}/kraken-origin.service"
-kraken_origin_registry_port: 32001
-kraken_origin_peer_port: 32002
-kraken_origin_server_port: 32003
+kraken_origin_peer_port: 32001
+kraken_origin_server_port: 32002
 kraken_origin_user: kraken-origin
 kraken_origin_socket_dir: "{{ kraken_socket_dir }}/origin"
 kraken_origin_socket: "{{ kraken_origin_socket_dir }}/kraken-origin.sock"
@@ -70,25 +101,48 @@ kraken_origin_client_crt: "{{ kraken_origin_tls_folder }}/client.crt"
 kraken_origin_client_key: "{{ kraken_origin_tls_folder }}/client.key"
 kraken_origin_client_passphrase: "{{ kraken_origin_tls_folder }}/client.passphrase"
 kraken_origin_log_folder: /var/log/kraken/kraken-origin
-kraken_origin_cache_folder: /var/cache/kraken/kraken-origin
-kraken_origin_nginx_folders:
-  - /tmp/nginx/
-  - /var/lib/nginx/
-  - /var/log/nginx/
-  - /var/run/nginx/
+kraken_origin_cache_folder: "{{ kraken_cache_dir }}/kraken-origin"
 kraken_origin_folders:
-  - "{{ kraken_config_dir }}/nginx/config"
-  - "{{ kraken_origin_tls_folder }}"
-  - "{{ kraken_origin_log_folder }}"
-  - "{{ kraken_origin_cache_folder }}/nginx"
-  - "{{ kraken_origin_cache_folder }}/cache"
-  - "{{ kraken_origin_cache_folder }}/download"
+  nginx_dir:
+    path: "{{ kraken_nginx_dir }}"
+    mode: "0775"
+  nginx_lib:
+    path: /var/lib/nginx/
+    mode: "0775"
+  nginx_lib_tmp:
+    path: /var/lib/nginx/tmp
+    mode: "0775"
+  nginx_log:
+    path: "{{ kraken_nginx_log }}"
+    mode: "0775"
+  nginx_run:
+    path: /var/run/nginx/
+    mode: "0775"
+  nginx_config:
+    path: "{{ kraken_config_dir }}/nginx/config"
+    mode: "0775"
+  tls:
+    path: "{{ kraken_origin_tls_folder }}"
+    mode: "0755"
+  log:
+    path: "{{ kraken_origin_log_folder }}"
+    mode: "0755"
+  nginx_cache:
+    path: "{{ kraken_origin_cache_folder }}/nginx"
+    mode: "0755"
+  agent_cache:
+    path: "{{ kraken_origin_cache_folder }}/cache"
+    mode: "0755"
+  agent_download:
+    path: "{{ kraken_origin_cache_folder }}/download"
+    mode: "0755"
+
 
 # kraken-tracker
 kraken_tracker_binary_src: "{{ kraken_binaries_dir }}/tracker"
 kraken_tracker_binary: "{{ kraken_binary_dir }}/kraken-tracker"
 kraken_tracker_service: "{{ systemd_dir }}/kraken-tracker.service"
-kraken_tracker_port: 32004
+kraken_tracker_port: 32003
 kraken_tracker_user: kraken-tracker
 kraken_tracker_socket_dir: "{{ kraken_socket_dir }}/tracker"
 kraken_tracker_socket: "{{ kraken_tracker_socket_dir }}/kraken-tracker.sock"
@@ -100,41 +154,64 @@ kraken_tracker_client_crt: "{{ kraken_tracker_tls_folder }}/client.crt"
 kraken_tracker_client_key: "{{ kraken_tracker_tls_folder }}/client.key"
 kraken_tracker_client_passphrase: "{{ kraken_tracker_tls_folder }}/client.passphrase"
 kraken_tracker_log_folder: /var/log/kraken/kraken-tracker
-kraken_tracker_cache_folder: /var/cache/kraken/kraken-tracker
-kraken_tracker_nginx_folders:
-  - /tmp/nginx/
-  - /var/lib/nginx/
-  - /var/log/nginx/
-  - /var/run/nginx/
+kraken_tracker_cache_folder: "{{ kraken_cache_dir }}/kraken-tracker"
 kraken_tracker_folders:
-  - "{{ kraken_config_dir }}/nginx/config"
-  - "{{ kraken_tracker_tls_folder }}"
-  - "{{ kraken_tracker_log_folder }}"
-  - "{{ kraken_tracker_cache_folder }}/nginx"
-  - "{{ kraken_tracker_cache_folder }}/cache"
-  - "{{ kraken_tracker_cache_folder }}/download"
+  nginx_dir:
+    path: "{{ kraken_nginx_dir }}"
+    mode: "0775"
+  nginx_lib:
+    path: /var/lib/nginx/
+    mode: "0775"
+  nginx_lib_tmp:
+    path: /var/lib/nginx/tmp
+    mode: "0775"
+  nginx_log:
+    path: "{{ kraken_nginx_log }}"
+    mode: "0775"
+  nginx_run:
+    path: /var/run/nginx/
+    mode: "0775"
+  nginx_config:
+    path: "{{ kraken_config_dir }}/nginx/config"
+    mode: "0775"
+  tls:
+    path: "{{ kraken_tracker_tls_folder }}"
+    mode: "0755"
+  log:
+    path: "{{ kraken_tracker_log_folder }}"
+    mode: "0755"
+  nginx_cache:
+    path: "{{ kraken_tracker_cache_folder }}/nginx"
+    mode: "0755"
+  agent_cache:
+    path: "{{ kraken_tracker_cache_folder }}/cache"
+    mode: "0755"
+  agent_download:
+    path: "{{ kraken_tracker_cache_folder }}/download"
+    mode: "0755"
+
 
 # kraken-build-index
-kraken_build_index_port: 32005
+kraken_build_index_port: 32004
 
 
 # Kraken services configuration dictionaries:
 binary_files:
   redis:
     redis_binaries:
-      src: "{{ redis_binaries_src }}/"
+      src: "{{ redis_binaries_src }}"
       dest: "{{ kraken_binary_dir }}"
   kraken_agent:
     kraken_agent_binary:
-      src: "{{ kraken_agent_binary_src }}/"
+      src: "{{ kraken_agent_binary_src }}"
       dest: "{{ kraken_agent_binary }}"
   kraken_origin:
     kraken_origin_binary:
-      src: "{{ kraken_origin_binary_src }}/"
+      src: "{{ kraken_origin_binary_src }}"
       dest: "{{ kraken_origin_binary }}"
   kraken_tracker:
     kraken_tracker_binary:
-      src: "{{ kraken_tracker_binary_src }}/"
+      src: "{{ kraken_tracker_binary_src }}"
       dest: "{{ kraken_tracker_binary }}"
 
 config_files:
@@ -162,7 +239,7 @@ config_files:
   kraken_origin_templates:
     base:
       src: kraken-origin_base.yaml.j2
-      dest: "{{ kraken_config_dir }}/base.yaml"
+      dest: "{{ kraken_config_dir }}/kraken-origin_base.yaml"
     config:
       src: kraken-origin.yaml.j2
       dest: "{{ kraken_config_dir }}/kraken-origin.yaml"
@@ -176,7 +253,7 @@ config_files:
   kraken_tracker_templates:
     base:
       src: kraken-tracker_base.yaml.j2
-      dest: "{{ kraken_config_dir }}/base.yaml"
+      dest: "{{ kraken_config_dir }}/kraken-tracker_base.yaml"
     config:
       src: kraken-tracker.yaml.j2
       dest: "{{ kraken_config_dir }}/kraken-tracker.yaml"
@@ -187,6 +264,14 @@ config_files:
     nginx_config:
       src: "{{ kraken_repo_root }}/nginx/config/"
       dest: "{{ kraken_config_dir }}/nginx/config/"
+
+files_permissions:
+  ca:
+    path: "{{ kraken_nginx_dir }}/ca.crt"
+    mode: "g+w"
+  nginx_log:
+    path: "{{ kraken_nginx_log }}/error.log"
+    mode: "g+w"
 
 tls_certificates:
   kraken_agent:

@@ -22,8 +22,8 @@ server {
 
   client_max_body_size 10G;
 
-  access_log {{.log_dir}}/nginx-access.log json;
-  error_log {{.log_dir}}/nginx-error.log;
+  access_log /dev/stdout;
+  error_log stderr;
 
   gzip on;
   gzip_types text/plain test/csv application/json;

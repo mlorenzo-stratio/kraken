@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	_genDir = "/tmp/nginx"
+	_genDir = "/var/cache/nginx/"
 )
 
 var _clientCABundle = path.Join(_genDir, "ca.crt")

@@ -12,7 +12,8 @@ TimeoutStopSec=15
 PermissionsStartOnly=true
 User={{ user }}
 Group={{ group }}
-ExecStartPre=/usr/bin/mkdir -p {{ kraken_agent_socket_dir }} {{ kraken_agent_nginx_folders | join(' ') }} ; /usr/bin/chown -R {{ user }}:{{ group }} {{ kraken_agent_socket_dir }} {{ kraken_agent_nginx_folders | join(' ') }}
+ExecStartPre=/usr/bin/bash -c "if ! kill -0 $MAINPID; then rm -f {{ kraken_agent_socket }}; fi"
+ExecStartPre=/usr/bin/mkdir -p {{ kraken_agent_socket_dir }} ; /usr/bin/chown -R {{ user }}:{{ group }} {{ kraken_agent_socket_dir }}
 ExecStart={{ kraken_agent_binary }} \
           --config={{ kraken_config_dir }}/kraken-agent.yaml \
 {% for herd_host in kraken_herd_hosts %}

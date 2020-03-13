@@ -1,10 +1,10 @@
 ---
-# - hosts: localhost
-#   tasks:
-#     - name: Build kraken
-#       import_role:
-#         name: kraken
-#         tasks_from: build-kraken
+- hosts: localhost
+  tasks:
+    - name: Build kraken
+      import_role:
+        name: kraken
+        tasks_from: build-kraken
 
 - hosts: redis
   become: true
@@ -32,14 +32,19 @@
 
 - hosts: tracker
   become: true
+  vars:
+    fix_permissions: yes
   tasks:
     - name: Import tracker tasks from kraken role
       import_role:
         name: kraken
         tasks_from: tracker
 
+
 - hosts: build_index
   become: true
+  vars:
+    fix_permissions: yes
   tasks:
     - name: Import build-index tasks from kraken role
       import_role:
