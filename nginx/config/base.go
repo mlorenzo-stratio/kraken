@@ -82,8 +82,8 @@ http {
   # Logging Settings
   ##
 
-  # access_log /var/log/nginx/access.log;
-  # error_log /var/log/nginx/error.log;
+  access_log /var/log/kraken/nginx-access.log;
+  error_log /var/log/kraken/nginx-error.log;
 
   # JSON log_format
   log_format json '{'

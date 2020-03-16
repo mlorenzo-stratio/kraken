@@ -35,6 +35,8 @@ venv
 *.out
 # Golang test files
 *.test
+# Golang builds
+go.build
 # Visual coverage report
 coverage.html
 # codecov coverage file

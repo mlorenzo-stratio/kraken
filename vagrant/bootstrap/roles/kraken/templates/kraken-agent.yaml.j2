@@ -51,19 +51,19 @@ build_index:
 tls:
   name: kraken
   cas:
-  - path: {{ kraken_agent_server_crt }}
+  - path: {{ kraken_config_dir }}/tls/server.crt
   server:
     disabled: false
     cert:
-      path: {{ kraken_agent_server_crt }}
+      path: {{ kraken_config_dir }}/tls/server.crt
     key:
-      path: {{ kraken_agent_server_key }}
+      path: {{ kraken_config_dir }}/tls/server.key
     passphrase:
-      path: {{ kraken_agent_server_passphrase }}
+      path: {{ kraken_config_dir }}/tls/server.passphrase
   client:
     cert:
-      path: {{ kraken_agent_client_crt }}
+      path: {{ kraken_config_dir }}/tls/client.crt
     key:
-      path: {{ kraken_agent_client_key }}
+      path: {{ kraken_config_dir }}/tls/client.key
     passphrase:
-      path: {{ kraken_agent_client_passphrase }}
+      path: {{ kraken_config_dir }}/tls/client.passphrase

@@ -30,8 +30,8 @@ server {
 
   {{.client_verification}}
 
-  access_log /dev/stdout;
-  error_log stderr;
+  access_log /var/log/kraken/agent-access.log;
+  error_log /var/log/kraken/agent-error.log;
 
   gzip on;
   gzip_types text/plain test/csv application/json;

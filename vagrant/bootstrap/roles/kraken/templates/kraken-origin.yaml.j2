@@ -76,19 +76,19 @@ writeback:
 tls:
   name: kraken
   cas:
-  - path: {{ kraken_origin_server_crt }}
+  - path: {{ kraken_config_dir }}/tls-origin/server.crt
   server:
     disabled: false
     cert:
-      path: {{ kraken_origin_server_crt }}
+      path: {{ kraken_config_dir }}/tls-origin/server.crt
     key:
-      path: {{ kraken_origin_server_key }}
+      path: {{ kraken_config_dir }}/tls-origin/server.key
     passphrase:
-      path: {{ kraken_origin_server_passphrase }}
+      path: {{ kraken_config_dir }}/tls-origin/server.passphrase
   client:
     cert:
-      path: {{ kraken_origin_client_crt }}
+      path: {{ kraken_config_dir }}/tls-origin/client.crt
     key:
-      path: {{ kraken_origin_client_key }}
+      path: {{ kraken_config_dir }}/tls-origin/client.key
     passphrase:
-      path: {{ kraken_origin_client_passphrase }}
+      path: {{ kraken_config_dir }}/tls-origin/client.passphrase

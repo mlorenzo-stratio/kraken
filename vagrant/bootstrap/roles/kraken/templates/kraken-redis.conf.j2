@@ -89,7 +89,7 @@ protected-mode yes
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
-port {{ redis_port }}
+port {{ kraken_redis_port }}
 
 # TCP listen() backlog.
 #
@@ -260,7 +260,7 @@ dbfilename dump.rdb
 # The Append Only File will also be created inside this directory.
 #
 # Note that you must specify a directory here, not a file name.
-dir {{ redis_cache_folder }}
+dir {{ kraken_cache_dir }}/kraken-redis
 
 ################################# REPLICATION #################################
 

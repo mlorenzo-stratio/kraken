@@ -15,9 +15,9 @@ zap:
     durationEncoder: seconds
     callerEncoder: short
   outputPaths:
-    - stdout
+    - {{ kraken_log_dir }}/kraken-tracker.log
   errorOutputPaths:
-    - stderr
+    - {{ kraken_log_dir }}/kraken-tracker.log
 
 logging:
   level: info
@@ -41,5 +41,5 @@ trackerserver:
 
 nginx:
   name: kraken-tracker
-  cache_dir: {{ kraken_tracker_cache_folder }}/nginx/
-  log_dir: {{ kraken_tracker_log_folder }}
+  cache_dir: {{ kraken_cache_dir }}/kraken-tracker/nginx/
+  log_dir: {{ kraken_log_dir }}

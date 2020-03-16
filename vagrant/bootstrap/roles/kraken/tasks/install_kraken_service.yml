@@ -22,7 +22,7 @@
     path: "{{ item.value.path }}"
     state: directory
     mode: "{{ item.value.mode }}"
-    owner: "{{ user }}"
+    owner: "{{ item.value.owner }}"
     group: "{{ group }}"
   with_dict: "{{ service_folders }}"
   notify: Start {{ service }} service
@@ -33,7 +33,7 @@
     src: "{{ item.value.src }}"
     dest: "{{ item.value.dest }}"
     mode: 0755
-    owner: "{{ user }}"
+    owner: root
     group: "{{ group }}"
   with_dict: "{{ service_binary_files }}"
   notify: Start {{ service }} service
@@ -44,7 +44,7 @@
     src: "{{ item.value.src }}"
     dest: "{{ item.value.dest }}"
     mode: 0644
-    owner: "{{ user }}"
+    owner: root
     group: "{{ group }}"
   with_dict: "{{ service_config_templates }}"
   notify: Start {{ service }} service
@@ -55,21 +55,11 @@
     src: "{{ item.value.src }}"
     dest: "{{ item.value.dest }}"
     mode: 0644
-    owner: "{{ user }}"
+    owner: root
     group: "{{ group }}"
   with_dict: "{{ service_config_files }}"
   notify: Start {{ service }} service
   when: service_config_files is defined
-
-- name: Set correct files permissions
-  file:
-    path: "{{ item.value.path }}"
-    mode: "{{ item.value.mode }}"
-    state: file
-    group: "{{ group }}"
-  with_dict: "{{ files_permissions }}"
-  notify: Start {{ service }} service
-  when: fix_permissions | default(false) | bool
 
 - name: Copy {{ service }} TLS certificates
   template:
@@ -81,10 +71,3 @@
   with_dict: "{{ service_tls_certificates }}"
   notify: Start {{ service }} service
   when: service_tls_certificates is defined
-
-- name: Start {{ service }} service
-  systemd:
-    daemon_reload: yes
-    name: "{{ service }}"
-    enabled: yes
-    state: started

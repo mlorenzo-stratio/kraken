@@ -10,14 +10,14 @@
     - { key: vm.overcommit_memory, value: '1' }
     - { key: net.core.somaxconn, value: '511' }
     - { key: net.ipv4.tcp_max_syn_backlog, value: '511' }
-  notify: Start redis service
+  notify: Start kraken-redis service
 
 - name: Install redis-server
   import_tasks: install_kraken_service.yml
   vars:
-    service: redis
-    user: "{{ redis_user }}"
-    group: "{{ kraken_group }}"
-    service_folders: "{{ redis_folders }}"
-    service_binary_files: "{{ binary_files.redis }}"
-    service_config_templates: "{{ config_files.redis }}"
+    service: kraken-redis
+    user: kraken-redis
+    group: kraken
+    service_folders: "{{ kraken_redis_folders }}"
+    service_binary_files: "{{ binary_files.kraken_redis }}"
+    service_config_templates: "{{ config_files.kraken_redis }}"

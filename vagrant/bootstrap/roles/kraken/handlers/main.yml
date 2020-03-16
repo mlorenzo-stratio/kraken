@@ -1,7 +1,7 @@
-- name: Start redis service
+- name: Start kraken-redis service
   systemd:
     daemon_reload: yes
-    name: redis
+    name: kraken-redis
     enabled: yes
     state: restarted
 

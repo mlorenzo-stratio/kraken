@@ -22,8 +22,8 @@ server {
 
   client_max_body_size 10G;
 
-  access_log /dev/stdout;
-  error_log stderr;
+  access_log /var/log/kraken/origin-access.log;
+  error_log /var/log/kraken/origin-error.log;
 
   gzip on;
   gzip_types text/plain test/csv application/json;

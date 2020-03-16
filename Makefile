@@ -3,6 +3,7 @@ export GO111MODULE = on
 SHELL = /bin/bash -o pipefail
 GO = go
 GOPATH = $(shell pwd)
+GOBUILD = $(GOPATH)/go.build
 
 # Flags to pass to go build
 BUILD_FLAGS = -gcflags '-N -l'
@@ -26,7 +27,7 @@ BUILD_LINUX = GOOS=linux GOARCH=amd64 $(GO) build -i -o $@ $(BUILD_FLAGS) $(BUIL
 
 # Cross compiling cgo for sqlite3 is not well supported in Mac OSX.
 # This workaround builds the binary inside a linux container.
-CROSS_COMPILER = docker run --rm -t -v $(GOPATH):/go/src/github.com/uber/kraken -e GO111MODULE=on -w /go/src/github.com/uber/kraken golang:1.11.4 go build -o ./$@ ./$(dir $@)
+CROSS_COMPILER = docker run --rm -t -v $(GOBUILD):/go -v $(GOPATH):/go/src/github.com/uber/kraken -e GO111MODULE=on -w /go/src/github.com/uber/kraken golang:1.11.4 go build -o ./$@ ./$(dir $@)
 
 LINUX_BINS = \
 	agent/agent \

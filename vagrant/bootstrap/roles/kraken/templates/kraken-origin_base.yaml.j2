@@ -15,9 +15,9 @@ zap:
     durationEncoder: seconds
     callerEncoder: short
   outputPaths:
-    - stdout
+    - {{ kraken_log_dir }}/kraken-origin.log
   errorOutputPaths:
-    - stderr
+    - {{ kraken_log_dir }}/kraken-origin.log
 
 metainfogen:
   piece_lengths:
@@ -36,11 +36,11 @@ metrics:
     service: kraken-origin
 
 localdb:
-  source: {{ kraken_origin_cache_folder }}/origin.db
+  source: {{ kraken_cache_dir }}/kraken-origin/origin.db
 
 castore:
-  upload_dir: {{ kraken_origin_cache_folder }}/upload/
-  cache_dir: {{ kraken_origin_cache_folder }}/cache/
+  upload_dir: {{ kraken_cache_dir }}/kraken-origin/upload/
+  cache_dir: {{ kraken_cache_dir }}/kraken-origin/cache/
 
 blobserver:
   listener:
@@ -49,5 +49,5 @@ blobserver:
 
 nginx:
   name: kraken-origin
-  cache_dir: {{ kraken_origin_cache_folder }}/nginx/
-  log_dir: {{ kraken_origin_log_folder }}
+  cache_dir: {{ kraken_cache_dir }}/kraken-origin/nginx/
+  log_dir: {{ kraken_log_dir }}

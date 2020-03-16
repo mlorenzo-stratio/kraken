@@ -89,8 +89,8 @@
   import_tasks: install_kraken_service.yml
   vars:
     service: kraken-origin
-    user: "{{ kraken_origin_user }}"
-    group: "{{ kraken_group }}"
+    user: kraken-origin
+    group: kraken
     service_folders: "{{ kraken_origin_folders }}"
     service_binary_files: "{{ binary_files.kraken_origin }}"
     service_config_templates: "{{ config_files.kraken_origin_templates }}"

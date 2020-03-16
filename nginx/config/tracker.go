@@ -26,8 +26,8 @@ server {
 
   {{.client_verification}}
 
-  access_log /dev/stdout;
-  error_log stderr;
+  access_log /var/log/kraken/tracker-access.log;
+  error_log /var/log/kraken/tracker-error.log;
 
   location / {
     proxy_pass http://tracker;

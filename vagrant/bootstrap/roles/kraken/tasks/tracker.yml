@@ -76,8 +76,8 @@
   import_tasks: install_kraken_service.yml
   vars:
     service: kraken-tracker
-    user: "{{ kraken_tracker_user }}"
-    group: "{{ kraken_group }}"
+    user: kraken-tracker
+    group: kraken
     service_folders: "{{ kraken_tracker_folders }}"
     service_binary_files: "{{ binary_files.kraken_tracker }}"
     service_config_templates: "{{ config_files.kraken_tracker_templates }}"

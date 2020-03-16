@@ -5,16 +5,22 @@ After=network.target
 [Service]
 Type=exec
 Restart=always
+
 StartLimitInterval=0
 RestartSec=15
 TimeoutStartSec=120
 TimeoutStopSec=15
-PermissionsStartOnly=true
+
 User={{ user }}
 Group={{ group }}
+
+PermissionsStartOnly=true
 ExecStartPre=/usr/bin/bash -c "if ! kill -0 $MAINPID; then rm -f {{ kraken_agent_socket }}; fi"
-ExecStartPre=/usr/bin/mkdir -p {{ kraken_agent_socket_dir }} ; /usr/bin/chown -R {{ user }}:{{ group }} {{ kraken_agent_socket_dir }}
-ExecStart={{ kraken_agent_binary }} \
+ExecStartPre=/usr/bin/mkdir -p {{ kraken_socket_dir }}
+ExecStartPre=/usr/bin/chown root:{{ group }} {{ kraken_socket_dir }}
+ExecStartPre=/usr/bin/chmod g+w {{ kraken_socket_dir }}
+
+ExecStart={{ kraken_binary_dir }}/kraken-agent \
           --config={{ kraken_config_dir }}/kraken-agent.yaml \
 {% for herd_host in kraken_herd_hosts %}
           --peer-ip={{ herd_host }} \
@@ -22,7 +28,9 @@ ExecStart={{ kraken_agent_binary }} \
           --peer-port={{ kraken_agent_peer_port }} \
           --agent-server-port={{ kraken_agent_server_port }} \
           --agent-registry-port={{ kraken_agent_registry_port }}
-ExecStartPost=/usr/bin/sleep 1 ; /bin/kill -0 $MAINPID
+
+ExecStartPost=/usr/bin/sleep 1
+ExecStartPost=/bin/kill -0 $MAINPID
 
 [Install]
 WantedBy=multi-user.target

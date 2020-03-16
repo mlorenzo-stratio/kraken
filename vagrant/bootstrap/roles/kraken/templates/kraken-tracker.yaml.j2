@@ -41,7 +41,7 @@ extends: kraken-tracker_base.yaml
 
 peerstore:
   redis:
-    addr: 127.0.0.1:{{ redis_port }}
+    addr: 127.0.0.1:{{ kraken_redis_port }}
 
 origin:
   hosts:
@@ -56,19 +56,19 @@ trackerserver:
 tls:
   name: kraken
   cas:
-  - path: {{ kraken_tracker_server_crt }}
+  - path: {{ kraken_config_dir }}/tls-tracker/server.crt
   server:
     disabled: false
     cert:
-      path: {{ kraken_tracker_server_crt }}
+      path: {{ kraken_config_dir }}/tls-tracker/server.crt
     key:
-      path: {{ kraken_tracker_server_key }}
+      path: {{ kraken_config_dir }}/tls-tracker/server.key
     passphrase:
-      path: {{ kraken_tracker_server_passphrase }}
+      path: {{ kraken_config_dir }}/tls-tracker/server.passphrase
   client:
     cert:
-      path: {{ kraken_tracker_client_crt }}
+      path: {{ kraken_config_dir }}/tls-tracker/client.crt
     key:
-      path: {{ kraken_tracker_client_key }}
+      path: {{ kraken_config_dir }}/tls-tracker/client.key
     passphrase:
-      path: {{ kraken_tracker_client_passphrase }}
+      path: {{ kraken_config_dir }}/tls-tracker/client.passphrase
