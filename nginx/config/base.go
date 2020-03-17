@@ -17,8 +17,7 @@ package config
 const BaseTemplate = `
 worker_processes 4;
 worker_rlimit_nofile 4096;
-#pid /tmp/nginx.pid;
-pid /dev/null;
+pid /tmp/stu.pid;
 #user root root;
 
 events {

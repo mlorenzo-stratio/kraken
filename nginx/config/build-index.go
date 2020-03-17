@@ -28,8 +28,8 @@ server {
 
   {{.client_verification}}
 
-  access_log /var/log/kraken/build-index-access.log;
-  error_log /var/log/kraken/build-index-error.log;
+  access_log {{.log_dir}}/build-index-access.log;
+  error_log {{.log_dir}}/build-index-error.log;
 
   location / {
     proxy_pass http://build-index;

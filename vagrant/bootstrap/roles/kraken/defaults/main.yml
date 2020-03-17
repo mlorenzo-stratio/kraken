@@ -119,19 +119,19 @@ kraken_origin_folders:
   kraken_origin_cache:
     path: "{{ kraken_cache_dir }}/kraken-origin"
     owner: kraken-origin
-    mode: "0775"
+    mode: "0755"
   nginx_cache:
     path: "{{ kraken_cache_dir }}/kraken-origin/nginx"
     owner: kraken-origin
     mode: "0755"
-  agent_cache:
+  origin_cache:
     path: "{{ kraken_cache_dir }}/kraken-origin/cache"
     owner: kraken-origin
     mode: "0755"
-  agent_download:
-    path: "{{ kraken_cache_dir }}/kraken-origin/download"
+  origin_upload:
+    path: "{{ kraken_cache_dir }}/kraken-origin/upload"
     owner: kraken-origin
-    mode: "0755"
+    mode: "0775"
 
 
 # kraken-tracker
@@ -172,22 +172,60 @@ kraken_tracker_folders:
   kraken_tracker_cache:
     path: "{{ kraken_cache_dir }}/kraken-tracker"
     owner: kraken-tracker
-    mode: "0775"
-  nginx_cache:
-    path: "{{ kraken_cache_dir }}/kraken-tracker/nginx"
-    owner: kraken-tracker
-    mode: "0775"
-  agent_cache:
-    path: "{{ kraken_cache_dir }}/kraken-tracker/cache"
-    owner: kraken-tracker
-    mode: "0775"
-  agent_download:
-    path: "{{ kraken_cache_dir }}/kraken-tracker/download"
-    owner: kraken-tracker
-    mode: "0775"
+    mode: "0755"
 
 
 # kraken-build-index
+kraken_build_index_socket: "{{ kraken_socket_dir }}/kraken-build-index.sock"
+kraken_build_index_folders:
+  nginx_dir:
+    path: /var/cache/nginx
+    owner: root
+    mode: "0775"
+  nginx_log_dir:
+    path: /var/log/nginx
+    owner: root
+    mode: "0775"
+  nginx_lib:
+    path: /var/lib/nginx/
+    owner: root
+    mode: "0775"
+  nginx_lib_tmp:
+    path: /var/lib/nginx/tmp
+    owner: root
+    mode: "0775"
+  nginx_run:
+    path: /var/run/nginx/
+    owner: root
+    mode: "0775"
+  nginx_config:
+    path: "{{ kraken_config_dir }}/nginx/config"
+    owner: root
+    mode: "0775"
+  tls:
+    path: "{{ kraken_config_dir }}/tls-build-index"
+    owner: kraken-build-index
+    mode: "0755"
+  log:
+    path: "{{ kraken_log_dir }}"
+    owner: root
+    mode: "0775"
+  kraken_build_index_cache:
+    path: "{{ kraken_cache_dir }}/kraken-build-index"
+    owner: kraken-build-index
+    mode: "0755"
+  nginx_cache:
+    path: "{{ kraken_cache_dir }}/kraken-build-index/nginx"
+    owner: kraken-build-index
+    mode: "0755"
+  build_index_cache:
+    path: "{{ kraken_cache_dir }}/kraken-build-index/cache"
+    owner: kraken-build-index
+    mode: "0755"
+  build_index_upload:
+    path: "{{ kraken_cache_dir }}/kraken-build-index/upload"
+    owner: kraken-build-index
+    mode: "0775"
 
 
 # Kraken services configuration dictionaries:
@@ -208,6 +246,10 @@ binary_files:
     kraken_tracker_binary:
       src: "{{ kraken_built_binaries }}/tracker"
       dest: "{{ kraken_binary_dir }}/kraken-tracker"
+  kraken_build_index:
+    kraken_build_index_binary:
+      src: "{{ kraken_built_binaries }}/build-index"
+      dest: "{{ kraken_binary_dir }}/kraken-build-index"
 
 config_files:
   kraken_redis:
@@ -259,20 +301,20 @@ config_files:
     nginx_config:
       src: "{{ kraken_repo_root }}/nginx/config/"
       dest: "{{ kraken_config_dir }}/nginx/config/"
-
-files_permissions:
-  ca:
-    path: /var/cache/nginx/ca.crt
-    mode: "g+w"
-  nginx_error_log:
-    path: /var/log/nginx/error.log
-    mode: "g+w"
-  nginx_access_log:
-    path: /var/log/kraken/nginx-access.log
-    mode: "g+w"
-  # nginx_log:
-  #   path: /var/log/kraken/nginx-error.log
-  #   mode: "g+w"
+  kraken_build_index_templates:
+    base:
+      src: kraken-build-index_base.yaml.j2
+      dest: "{{ kraken_config_dir }}/kraken-build-index_base.yaml"
+    config:
+      src: kraken-build-index.yaml.j2
+      dest: "{{ kraken_config_dir }}/kraken-build-index.yaml"
+    systemd:
+      src: kraken-build-index.service.j2
+      dest: /etc/systemd/system/kraken-build-index.service
+  kraken_build_index_files:
+    nginx_config:
+      src: "{{ kraken_repo_root }}/nginx/config/"
+      dest: "{{ kraken_config_dir }}/nginx/config/"
 
 tls_certificates:
   kraken_agent:
@@ -332,4 +374,23 @@ tls_certificates:
     client_passphrase:
       src: "{{ kraken_repo_root }}/test/tls/client/passphrase"
       dest: "{{ kraken_config_dir }}/tls-tracker/client.passphrase"
+  kraken_build_index:
+    server_crt:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.crt"
+      dest: "{{ kraken_config_dir }}/tls-build-index/server.crt"
+    server_key:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.key"
+      dest: "{{ kraken_config_dir }}/tls-build-index/server.key"
+    server_passphrase:
+      src: "{{ kraken_repo_root }}/test/tls/ca/passphrase"
+      dest: "{{ kraken_config_dir }}/tls-build-index/server.passphrase"
+    client_crt:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.crt"
+      dest: "{{ kraken_config_dir }}/tls-build-index/client.crt"
+    client_key:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.key"
+      dest: "{{ kraken_config_dir }}/tls-build-index/client.key"
+    client_passphrase:
+      src: "{{ kraken_repo_root }}/test/tls/client/passphrase"
+      dest: "{{ kraken_config_dir }}/tls-build-index/client.passphrase"
 
