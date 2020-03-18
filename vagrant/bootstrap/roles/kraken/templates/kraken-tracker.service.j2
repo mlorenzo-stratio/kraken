@@ -17,10 +17,10 @@ UMask=0002
 
 PermissionsStartOnly=true
 ExecStartPre=/usr/bin/bash -c "if ! kill -0 $MAINPID; then rm -f {{ kraken_tracker_socket }}; fi"
-ExecStartPre=/usr/bin/touch {{ kraken_log_dir }}/nginx-access.log {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt /tmp/stu.pid
+ExecStartPre=/usr/bin/touch {{ kraken_log_dir }}/nginx-access.log {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt /tmp/nginx.pid
 ExecStartPre=/usr/bin/mkdir -p {{ kraken_socket_dir }}
-ExecStartPre=/usr/bin/chown root:{{ group }} {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-access.log {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt /tmp/stu.pid
-ExecStartPre=/usr/bin/chmod g+w {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-access.log {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt /tmp/stu.pid
+ExecStartPre=/usr/bin/chown root:{{ group }} {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-access.log {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt /tmp/nginx.pid
+ExecStartPre=/usr/bin/chmod g+w {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-access.log {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt /tmp/nginx.pid
 
 ExecStart={{ kraken_binary_dir }}/kraken-tracker \
           --config={{ kraken_config_dir }}/kraken-tracker.yaml \

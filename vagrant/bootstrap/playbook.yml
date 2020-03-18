@@ -32,8 +32,6 @@
 
 - hosts: tracker
   become: true
-  vars:
-    fix_permissions: yes
   tasks:
     - name: Import tracker tasks from kraken role
       import_role:
@@ -43,8 +41,6 @@
 
 - hosts: build_index
   become: true
-  vars:
-    fix_permissions: yes
   tasks:
     - name: Import build-index tasks from kraken role
       import_role:

@@ -22,7 +22,7 @@ server {
 
   client_max_body_size 10G;
 
-  access_log {{.log_dir}}/origin-access.log;
+  access_log {{.log_dir}}/origin-access.log json;
   error_log {{.log_dir}}/origin-error.log;
 
   gzip on;

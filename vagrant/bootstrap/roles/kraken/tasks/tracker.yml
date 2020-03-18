@@ -1,67 +1,4 @@
 ---
-# FROM debian:9
-#
-# RUN apt-get update && apt-get install -y curl nginx
-#
-# RUN mkdir -p -m 777 /var/log/kraken/kraken-tracker
-# RUN mkdir -p -m 777 /var/cache/kraken/kraken-tracker
-# RUN mkdir -p -m 777 /var/run/kraken
-#
-# ARG USERNAME="root"
-# ARG USERID="0"
-# RUN if [ ${USERID} != "0" ]; then useradd --uid ${USERID} ${USERNAME}; fi
-#
-# COPY ./docker/setup_nginx.sh /tmp/setup_nginx.sh
-# RUN /tmp/setup_nginx.sh ${USERNAME}
-#
-# USER ${USERNAME}
-#
-# COPY ./tracker/tracker /usr/bin/kraken-tracker
-# COPY ./config /etc/kraken/config
-# COPY ./nginx/config /etc/kraken/nginx/config
-# COPY ./test/tls /etc/kraken/tls
-#
-# WORKDIR /etc/kraken
-
-# # Start kraken herd.
-# docker run -d \
-#     --add-host host.docker.internal:127.0.0.1 \
-#     -p ${TESTFS_PORT}:${TESTFS_PORT} \
-#     -p ${ORIGIN_SERVER_PORT}:${ORIGIN_SERVER_PORT} \
-#     -p ${ORIGIN_PEER_PORT}:${ORIGIN_PEER_PORT} \
-#     -p ${TRACKER_PORT}:${TRACKER_PORT} \
-#     -p ${BUILD_INDEX_PORT}:${BUILD_INDEX_PORT} \
-#     -p ${PROXY_PORT}:${PROXY_PORT} \
-#     -p ${PROXY_SERVER_PORT}:${PROXY_SERVER_PORT} \
-#     -v $(pwd)/examples/devcluster/config/origin/development.yaml:/etc/kraken/config/origin/development.yaml \
-#     -v $(pwd)/examples/devcluster/config/tracker/development.yaml:/etc/kraken/config/tracker/development.yaml \
-#     -v $(pwd)/examples/devcluster/config/build-index/development.yaml:/etc/kraken/config/build-index/development.yaml \
-#     -v $(pwd)/examples/devcluster/config/proxy/development.yaml:/etc/kraken/config/proxy/development.yaml \
-#     -v $(pwd)/examples/devcluster/herd_param.sh:/etc/kraken/herd_param.sh \
-#     -v $(pwd)/examples/devcluster/herd_start_processes.sh:/etc/kraken/herd_start_processes.sh \
-#     --name kraken-herd \
-#     kraken-herd:dev ./herd_start_processes.sh
-# Define optional storage ports.
-
-# TESTFS_PORT=14000
-# REDIS_PORT=14001
-
-# # Define herd ports.
-# PROXY_PORT=15000
-# ORIGIN_PEER_PORT=15001
-# ORIGIN_SERVER_PORT=15002
-# TRACKER_PORT=15003
-# BUILD_INDEX_PORT=15004
-# PROXY_SERVER_PORT=15005
-
-# # Hostname for docker for mac.
-# HOSTNAME=host.docker.internal
-
-# /usr/bin/kraken-tracker \
-#     --config=/etc/kraken/config/tracker/development.yaml \
-#     --port=${TRACKER_PORT} \
-#     &>/var/log/kraken/kraken-tracker/stdout.log &
-
 - name: Install EPEL repository
   yum:
     name: epel-release
@@ -76,7 +13,7 @@
   import_tasks: install_kraken_service.yml
   vars:
     service: kraken-tracker
-    user: kraken-tracker
+    user: kraken
     group: kraken
     service_folders: "{{ kraken_tracker_folders }}"
     service_binary_files: "{{ binary_files.kraken_tracker }}"

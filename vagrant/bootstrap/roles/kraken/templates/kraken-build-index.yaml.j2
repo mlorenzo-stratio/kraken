@@ -112,6 +112,9 @@ writeback:
   retry_interval: 100ms
   poll_retries_interval: 250ms
 
+nginx:
+  cache_dir: {{ kraken_cache_dir }}/kraken-build-index
+
 tls:
   name: kraken
   cas:

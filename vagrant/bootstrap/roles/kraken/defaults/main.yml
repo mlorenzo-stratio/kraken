@@ -25,47 +25,47 @@ kraken_agent_socket: "{{ kraken_socket_dir }}/kraken-agent.sock"
 kraken_agent_folders:
   nginx_dir:
     path: /var/cache/nginx
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   nginx_log_dir:
     path: /var/log/nginx
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   nginx_lib:
     path: /var/lib/nginx/
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   nginx_lib_tmp:
     path: /var/lib/nginx/tmp
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   nginx_run:
     path: /var/run/nginx/
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   nginx_config:
     path: "{{ kraken_config_dir }}/nginx/config"
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   tls:
     path: "{{ kraken_config_dir }}/tls"
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   log:
     path: "{{ kraken_log_dir }}"
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   nginx_cache:
     path: "{{ kraken_cache_dir }}/nginx"
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   agent_cache:
     path: "{{ kraken_cache_dir }}/cache"
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
   agent_download:
     path: "{{ kraken_cache_dir }}/download"
-    owner: kraken-agent
+    owner: kraken
     mode: "0755"
 
 
@@ -110,7 +110,7 @@ kraken_origin_folders:
     mode: "0775"
   tls:
     path: "{{ kraken_config_dir }}/tls-origin"
-    owner: kraken-origin
+    owner: kraken
     mode: "0755"
   log:
     path: "{{ kraken_log_dir }}"
@@ -118,19 +118,19 @@ kraken_origin_folders:
     mode: "0775"
   kraken_origin_cache:
     path: "{{ kraken_cache_dir }}/kraken-origin"
-    owner: kraken-origin
+    owner: kraken
     mode: "0755"
   nginx_cache:
     path: "{{ kraken_cache_dir }}/kraken-origin/nginx"
-    owner: kraken-origin
+    owner: kraken
     mode: "0755"
   origin_cache:
     path: "{{ kraken_cache_dir }}/kraken-origin/cache"
-    owner: kraken-origin
+    owner: kraken
     mode: "0755"
   origin_upload:
     path: "{{ kraken_cache_dir }}/kraken-origin/upload"
-    owner: kraken-origin
+    owner: kraken
     mode: "0775"
 
 
@@ -163,7 +163,7 @@ kraken_tracker_folders:
     mode: "0775"
   tls:
     path: "{{ kraken_config_dir }}/tls-tracker"
-    owner: kraken-tracker
+    owner: kraken
     mode: "0755"
   log:
     path: "{{ kraken_log_dir }}"
@@ -171,7 +171,11 @@ kraken_tracker_folders:
     mode: "0775"
   kraken_tracker_cache:
     path: "{{ kraken_cache_dir }}/kraken-tracker"
-    owner: kraken-tracker
+    owner: kraken
+    mode: "0755"
+  nginx_cache:
+    path: "{{ kraken_cache_dir }}/kraken-tracker/nginx"
+    owner: kraken
     mode: "0755"
 
 
@@ -204,7 +208,7 @@ kraken_build_index_folders:
     mode: "0775"
   tls:
     path: "{{ kraken_config_dir }}/tls-build-index"
-    owner: kraken-build-index
+    owner: kraken
     mode: "0755"
   log:
     path: "{{ kraken_log_dir }}"
@@ -212,19 +216,19 @@ kraken_build_index_folders:
     mode: "0775"
   kraken_build_index_cache:
     path: "{{ kraken_cache_dir }}/kraken-build-index"
-    owner: kraken-build-index
+    owner: kraken
     mode: "0755"
   nginx_cache:
     path: "{{ kraken_cache_dir }}/kraken-build-index/nginx"
-    owner: kraken-build-index
+    owner: kraken
     mode: "0755"
   build_index_cache:
     path: "{{ kraken_cache_dir }}/kraken-build-index/cache"
-    owner: kraken-build-index
+    owner: kraken
     mode: "0755"
   build_index_upload:
     path: "{{ kraken_cache_dir }}/kraken-build-index/upload"
-    owner: kraken-build-index
+    owner: kraken
     mode: "0775"
 
 

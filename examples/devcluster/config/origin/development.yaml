@@ -1,10 +1,10 @@
 extends: base.yaml
 
 backends:
-  - namespace: .*
+  - namespace: library/.*
     backend:
       registry_blob:
-        address: qa.stratio.com
+        address: index.docker.io
         security:
           basic:
             username: ""

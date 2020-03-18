@@ -69,22 +69,29 @@ define tag_image
 	docker tag $(1):$(PACKAGE_VERSION) $(REGISTRY)/$(1):$(PACKAGE_VERSION)
 endef
 
+# .PHONY: images
+# images: $(LINUX_BINS)
+# 	docker build $(BUILD_QUIET) -t kraken-agent:$(PACKAGE_VERSION) -f docker/agent/Dockerfile ./
+# 	docker build $(BUILD_QUIET) -t kraken-build-index:$(PACKAGE_VERSION) -f docker/build-index/Dockerfile ./
+# 	docker build $(BUILD_QUIET) -t kraken-origin:$(PACKAGE_VERSION) -f docker/origin/Dockerfile ./
+# 	docker build $(BUILD_QUIET) -t kraken-proxy:$(PACKAGE_VERSION) -f docker/proxy/Dockerfile ./
+# 	docker build $(BUILD_QUIET) -t kraken-testfs:$(PACKAGE_VERSION) -f docker/testfs/Dockerfile ./
+# 	docker build $(BUILD_QUIET) -t kraken-tracker:$(PACKAGE_VERSION) -f docker/tracker/Dockerfile ./
+# 	docker build $(BUILD_QUIET) -t kraken-herd:$(PACKAGE_VERSION) -f docker/herd/Dockerfile ./
+# 	$(call tag_image,kraken-agent)
+# 	$(call tag_image,kraken-build-index)
+# 	$(call tag_image,kraken-origin)
+# 	$(call tag_image,kraken-proxy)
+# 	$(call tag_image,kraken-proxy)
+# 	$(call tag_image,kraken-testfs)
+# 	$(call tag_image,kraken-tracker)
+# 	$(call tag_image,kraken-herd)
+
 .PHONY: images
 images: $(LINUX_BINS)
 	docker build $(BUILD_QUIET) -t kraken-agent:$(PACKAGE_VERSION) -f docker/agent/Dockerfile ./
-	docker build $(BUILD_QUIET) -t kraken-build-index:$(PACKAGE_VERSION) -f docker/build-index/Dockerfile ./
-	docker build $(BUILD_QUIET) -t kraken-origin:$(PACKAGE_VERSION) -f docker/origin/Dockerfile ./
-	docker build $(BUILD_QUIET) -t kraken-proxy:$(PACKAGE_VERSION) -f docker/proxy/Dockerfile ./
-	docker build $(BUILD_QUIET) -t kraken-testfs:$(PACKAGE_VERSION) -f docker/testfs/Dockerfile ./
-	docker build $(BUILD_QUIET) -t kraken-tracker:$(PACKAGE_VERSION) -f docker/tracker/Dockerfile ./
 	docker build $(BUILD_QUIET) -t kraken-herd:$(PACKAGE_VERSION) -f docker/herd/Dockerfile ./
 	$(call tag_image,kraken-agent)
-	$(call tag_image,kraken-build-index)
-	$(call tag_image,kraken-origin)
-	$(call tag_image,kraken-proxy)
-	$(call tag_image,kraken-proxy)
-	$(call tag_image,kraken-testfs)
-	$(call tag_image,kraken-tracker)
 	$(call tag_image,kraken-herd)
 
 .PHONY: publish
@@ -137,6 +144,11 @@ NAME?=test_
 runtest: venv docker_stop
 	source venv/bin/activate
 	venv/bin/py.test --timeout=120 -v -k $(NAME) test/python
+
+.PHONY: rundev
+rundev: docker_stop
+	./examples/devcluster/herd_start_container.sh
+	./examples/devcluster/agent_one_start_container.sh
 
 .PHONY: devcluster
 devcluster: $(LINUX_BINS) docker_stop images
