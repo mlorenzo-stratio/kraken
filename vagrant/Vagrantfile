@@ -18,22 +18,23 @@ cluster={
     :box => "centos/7",
     :ram => 2048,
     :cpu => 2
-  },
-  "agent-2.kraken.cluster" => {
-    :box => "centos/7",
-    :ram => 2048,
-    :cpu => 2
-  },
-  "agent-3.kraken.cluster" => {
-    :box => "centos/7",
-    :ram => 2048,
-    :cpu => 2
-  },
-  "agent-4.kraken.cluster" => {
-    :box => "centos/7",
-    :ram => 2048,
-    :cpu => 2
   }
+  # },
+  # "agent-2.kraken.cluster" => {
+  #   :box => "centos/7",
+  #   :ram => 2048,
+  #   :cpu => 2
+  # },
+  # "agent-3.kraken.cluster" => {
+  #   :box => "centos/7",
+  #   :ram => 2048,
+  #   :cpu => 2
+  # },
+  # "agent-4.kraken.cluster" => {
+  #   :box => "centos/7",
+  #   :ram => 2048,
+  #   :cpu => 2
+  # }
 }
 
 Vagrant.configure("2") do |config|
@@ -59,11 +60,8 @@ Vagrant.configure("2") do |config|
           #ansible.raw_arguments = ["-vvv"]
           ansible.groups = {
             "herd" => ["herd.kraken.cluster"],
-            "agents" => ["agent-1.kraken.cluster", "agent-2.kraken.cluster", "agent-3.kraken.cluster", "agent-4.kraken.cluster"],
-            "origin" => ["herd.kraken.cluster"],
-            "build_index" => ["herd.kraken.cluster"],
-            "tracker" => ["herd.kraken.cluster"],
-            "redis" => ["herd.kraken.cluster"]
+            # "agents" => ["agent-1.kraken.cluster", "agent-2.kraken.cluster", "agent-3.kraken.cluster", "agent-4.kraken.cluster"]
+            "agents" => ["agent-1.kraken.cluster"]
           }
         end # end provision
       end # end if
