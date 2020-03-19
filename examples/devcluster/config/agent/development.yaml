@@ -15,7 +15,7 @@ tls:
   cas:
   - path: /etc/kraken/tls/ca/server.crt
   server:
-    disabled: true
+    disabled: false
     cert:
       path: /etc/kraken/tls/ca/server.crt
     key:

@@ -21,7 +21,7 @@ upstream registry-backend {
 }
 
 server {
-  listen {{.port}};
+  listen {{.port}} ssl;
 
   {{.client_verification}}
 

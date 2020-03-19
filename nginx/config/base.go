@@ -17,7 +17,7 @@ package config
 const BaseTemplate = `
 worker_processes 4;
 worker_rlimit_nofile 4096;
-pid /tmp/nginx.pid;
+pid /var/cache/kraken/nginx.pid;
 
 events {
   worker_connections 2048;
@@ -60,7 +60,6 @@ http {
   ##
 
   {{if .ssl_enabled}}
-    ssl on;
     ssl_certificate {{.ssl_certificate}};
     ssl_certificate_key {{.ssl_certificate_key}};
     {{if .ssl_password_file}}
@@ -80,7 +79,7 @@ http {
   # Logging Settings
   ##
 
-  access_log /var/log/kraken/nginx-access.log;
+  # access_log /var/log/kraken/nginx-access.log;
   error_log /var/log/kraken/nginx-error.log;
 
   # JSON log_format

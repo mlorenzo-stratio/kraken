@@ -22,7 +22,7 @@ upstream tracker {
 }
 
 server {
-  listen {{.port}};
+  listen {{.port}} ssl;
 
   {{.client_verification}}
 
