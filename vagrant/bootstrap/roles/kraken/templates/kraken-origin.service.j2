@@ -21,6 +21,7 @@ ExecStartPre=/usr/bin/touch {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_d
 ExecStartPre=/usr/bin/mkdir -p {{ kraken_socket_dir }}
 ExecStartPre=/usr/bin/chown root:{{ group }} {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt
 ExecStartPre=/usr/bin/chmod g+w {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt
+ExecStartPre=/usr/bin/chown :kraken /var/cache/kraken/nginx.pid
 ExecStartPre=/usr/bin/chmod 777 /var/cache/kraken/nginx.pid
 
 ExecStart={{ kraken_binary_dir }}/kraken-origin \

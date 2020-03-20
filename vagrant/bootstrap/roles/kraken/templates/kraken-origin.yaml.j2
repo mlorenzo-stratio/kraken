@@ -83,12 +83,16 @@ tls:
       path: {{ kraken_config_dir }}/tls-origin/server.crt
     key:
       path: {{ kraken_config_dir }}/tls-origin/server.key
+{% if tls_certificates.kraken_origin.server_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls-origin/server.passphrase
+{% endif %}
   client:
     cert:
       path: {{ kraken_config_dir }}/tls-origin/client.crt
     key:
       path: {{ kraken_config_dir }}/tls-origin/client.key
+{% if tls_certificates.kraken_origin.client_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls-origin/client.passphrase
+{% endif %}

@@ -125,12 +125,16 @@ tls:
       path: {{ kraken_config_dir }}/tls-build-index/server.crt
     key:
       path: {{ kraken_config_dir }}/tls-build-index/server.key
+{% if tls_certificates.kraken_build_index.server_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls-build-index/server.passphrase
+{% endif %}
   client:
     cert:
       path: {{ kraken_config_dir }}/tls-build-index/client.crt
     key:
       path: {{ kraken_config_dir }}/tls-build-index/client.key
+{% if tls_certificates.kraken_build_index.client_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls-build-index/client.passphrase
+{% endif %}

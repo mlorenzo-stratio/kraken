@@ -66,12 +66,16 @@ tls:
       path: {{ kraken_config_dir }}/tls-tracker/server.crt
     key:
       path: {{ kraken_config_dir }}/tls-tracker/server.key
+{% if tls_certificates.kraken_tracker.server_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls-tracker/server.passphrase
+{% endif %}
   client:
     cert:
       path: {{ kraken_config_dir }}/tls-tracker/client.crt
     key:
       path: {{ kraken_config_dir }}/tls-tracker/client.key
+{% if tls_certificates.kraken_tracker.client_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls-tracker/client.passphrase
+{% endif %}

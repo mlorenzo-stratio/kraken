@@ -58,12 +58,16 @@ tls:
       path: {{ kraken_config_dir }}/tls/server.crt
     key:
       path: {{ kraken_config_dir }}/tls/server.key
+{% if tls_certificates.kraken_agent.server_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls/server.passphrase
+{% endif %}
   client:
     cert:
       path: {{ kraken_config_dir }}/tls/client.crt
     key:
       path: {{ kraken_config_dir }}/tls/client.key
+{% if tls_certificates.kraken_agent.client_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls/client.passphrase
+{% endif %}
