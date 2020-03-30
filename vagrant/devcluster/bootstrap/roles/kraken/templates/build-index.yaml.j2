@@ -1,0 +1,136 @@
+extends: build-index_base.yaml
+
+backends:
+  - namespace: library/.*
+    backend:
+      registry_tag:
+        address: index.docker.io
+        security:
+          basic:
+            username: ""
+            password: ""
+
+cluster:
+  hosts:
+    static:
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ build_index_port }}
+{% endfor %}
+
+origin:
+  hosts:
+    static:
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ origin_server_port }}
+{% endfor %}
+
+remotes: {}
+
+tag_replication:
+  retry_interval: 100ms
+  poll_retries_interval: 250ms
+
+tag_types:
+  - namespace: .*
+    type: docker
+    root: tags
+
+tag_store:
+  write_through: false
+
+writeback:
+  retry_interval: 100ms
+  poll_retries_interval: 250ms
+
+nginx:
+  cache_dir: {{ kraken_cache_dir }}/kraken-build-index
+
+tls:
+  name: kraken
+  cas:
+  - path: /etc/kraken/tls/ca/server.crt
+  server:
+    cert:
+      path: /etc/kraken/tls/ca/server.crt
+    key:
+      path: /etc/kraken/tls/ca/server.key
+    passphrase:
+      path: /etc/kraken/tls/ca/passphrase
+  client:
+    cert:
+      path: /etc/kraken/tls/client/client.crt
+    key:
+      path: /etc/kraken/tls/client/client.key
+    passphrase:
+      path: /etc/kraken/tls/client/passphrase
+
+{# extends: kraken-build-index_base.yaml
+
+backends:
+  - namespace: library/.*
+    backend:
+      registry_blob:
+        address: index.docker.io
+        security:
+          basic:
+            username: ""
+            password: ""
+
+cluster:
+  hosts:
+    static:
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ build_index_port }}
+{% endfor %}
+
+origin:
+  hosts:
+    static:
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ origin_server_port }}
+{% endfor %}
+
+remotes: {}
+
+tag_replication:
+  retry_interval: 100ms
+  poll_retries_interval: 250ms
+
+tag_types:
+  - namespace: .*
+    type: docker
+    root: tags
+
+tag_store:
+  write_through: false
+
+writeback:
+  retry_interval: 100ms
+  poll_retries_interval: 250ms
+
+nginx:
+  cache_dir: {{ kraken_cache_dir }}/kraken-build-index
+
+tls:
+  name: kraken
+  cas:
+  - path: {{ kraken_config_dir }}/tls-build-index/server.crt
+  server:
+    disabled: false
+    cert:
+      path: {{ kraken_config_dir }}/tls-build-index/server.crt
+    key:
+      path: {{ kraken_config_dir }}/tls-build-index/server.key
+{% if tls_certificates.kraken_build_index.server_passphrase is defined %}
+    passphrase:
+      path: {{ kraken_config_dir }}/tls-build-index/server.passphrase
+{% endif %}
+  client:
+    cert:
+      path: {{ kraken_config_dir }}/tls-build-index/client.crt
+    key:
+      path: {{ kraken_config_dir }}/tls-build-index/client.key
+{% if tls_certificates.kraken_build_index.client_passphrase is defined %}
+    passphrase:
+      path: {{ kraken_config_dir }}/tls-build-index/client.passphrase
+{% endif %} #}

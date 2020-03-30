@@ -63,6 +63,7 @@ env*
 
 # Vagrant files
 vagrant/.vagrant
+vagrant/devcluster/.vagrant
 vagrant/*/*.retry
 
 # Redis build
@@ -71,3 +72,17 @@ redis/bin
 
 # Kraken binaries build
 bin/
+
+# Kraken binaries in ansible role
+vagrant/bootstrap/roles/kraken/files/kraken-agent
+vagrant/bootstrap/roles/kraken/files/kraken-build-index
+vagrant/bootstrap/roles/kraken/files/kraken-origin
+vagrant/bootstrap/roles/kraken/files/kraken-tracker
+vagrant/bootstrap/roles/kraken/files/config
+vagrant/bootstrap/roles/kraken/files/tls
+vagrant/devcluster/bootstrap/roles/kraken/files/kraken-agent
+vagrant/devcluster/bootstrap/roles/kraken/files/kraken-origin
+vagrant/devcluster/bootstrap/roles/kraken/files/kraken-tracker
+vagrant/devcluster/bootstrap/roles/kraken/files/kraken-build-index
+vagrant/devcluster/bootstrap/roles/kraken/files/config
+vagrant/devcluster/bootstrap/roles/kraken/files/tls

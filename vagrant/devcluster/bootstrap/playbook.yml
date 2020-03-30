@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Build kraken
+      import_role:
+        name: kraken
+        tasks_from: build-kraken
+
+- hosts: agents, herd
+  become: true
+  tasks:
+    - name: Adding hosts to /etc/hosts file
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^{{hostvars[item]["ansible_default_ipv4"]["address"]}}\s+'
+        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} {{hostvars[item]['ansible_hostname']}} host.docker.internal herd.kraken.cluster"
+        backup: yes
+        state: present
+      with_items: "{{groups['herd']}}"
+
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Adding kraken to /etc/hosts file
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^.*\s+kraken$'
+        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} registry.kraken.cluster kraken"
+        backup: yes
+        state: present
+      with_items: "{{groups['agents'][0]}}"
+
+- hosts: herd
+  become: true
+  tasks:
+    - name: Import herd tasks from kraken role
+      import_role:
+        name: kraken
+        tasks_from: herd
+
+- hosts: agents
+  become: true
+  vars:
+    user: kraken
+  tasks:
+    - name: Import herd tasks from kraken role
+      import_role:
+        name: kraken
+        tasks_from: agent

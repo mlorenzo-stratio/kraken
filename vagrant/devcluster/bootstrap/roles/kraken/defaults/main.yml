@@ -1,0 +1,49 @@
+---
+herd_hosts: "{{ groups['herd'] | map('extract', hostvars, ['ansible_fqdn']) | list }}"
+
+kraken_config_dir: /etc/kraken
+kraken_binary_dir: /usr/local/bin
+kraken_log_dir: /var/log/kraken
+kraken_cache_dir: /var/cache/kraken
+kraken_socket_dir: /run/kraken
+kraken_nginx_cache_dir: /var/cache/nginx
+kraken_nginx_log_dir: /var/log/nginx
+kraken_nginx_lib_dir: /var/lib/nginx
+kraken_nginx_lib_tmp_dir: /var/lib/nginx/tmp
+
+user: root
+group: kraken
+
+# Kraken herd ports
+redis_port: 32001
+origin_peer_port: 32002
+origin_server_port: 32003
+tracker_port: 32004
+build_index_port: 32005
+
+# Kraken agents ports
+agent_registry_port: 32001
+agent_peer_port: 32004
+agent_server_port: 32003
+
+# Configuration variables
+tls_certificates:
+  agent:
+    server_crt:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.crt"
+      dest: "{{ kraken_config_dir }}/tls/server.crt"
+    server_key:
+      src: "{{ kraken_repo_root }}/test/tls/ca/server.key"
+      dest: "{{ kraken_config_dir }}/tls/server.key"
+    # server_passphrase:
+    #   src: "{{ kraken_repo_root }}/test/tls/ca/passphrase"
+    #   dest: "{{ kraken_config_dir }}/tls/server.passphrase"
+    client_crt:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.crt"
+      dest: "{{ kraken_config_dir }}/tls/client.crt"
+    client_key:
+      src: "{{ kraken_repo_root }}/test/tls/client/client.key"
+      dest: "{{ kraken_config_dir }}/tls/client.key"
+    # client_passphrase:
+    #   src: "{{ kraken_repo_root }}/test/tls/client/passphrase"
+    #   dest: "{{ kraken_config_dir }}/tls/client.passphrase"

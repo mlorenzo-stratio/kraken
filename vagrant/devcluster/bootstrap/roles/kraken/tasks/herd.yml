@@ -1,0 +1,94 @@
+- name: Install EPEL repository
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Install packages
+  yum:
+    name: ['curl', 'sqlite', 'nginx']
+    state: latest
+  # notify: Start kraken-herd services
+
+- name: Create {{ group }} group
+  group:
+    name: "{{ group }}"
+    state: present
+    system: yes
+  # notify: Start kraken-herd services
+  when: group is defined
+
+- name: Create {{ user }} user
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    state: present
+    system: yes
+  # notify: Start kraken-herd services
+  when: user is defined
+
+- name: Create kraken-herd folders
+  file:
+    path: "{{ item }}"
+    mode: 0775
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_items:
+    - "{{ kraken_config_dir }}/tls/ca"
+    - "{{ kraken_config_dir }}/tls/client"
+    - "{{ kraken_cache_dir }}/kraken-origin"
+    - "{{ kraken_cache_dir }}/kraken-tracker"
+    - "{{ kraken_cache_dir }}/kraken-build-index"
+    - "{{ kraken_socket_dir }}"
+    - "{{ kraken_nginx_cache_dir }}"
+    - "{{ kraken_nginx_log_dir }}"
+    - "{{ kraken_nginx_lib_dir }}"
+    - "{{ kraken_nginx_lib_tmp_dir }}"
+
+- name: Copy setup_nginx.sh
+  copy:
+    src: ../../../docker/setup_nginx.sh
+    dest: /tmp/setup_nginx.sh
+    mode: 0755
+
+- name: Run setup_nginx.sh
+  shell: /tmp/setup_nginx.sh "{{ user }}"
+
+- name: Copy kraken-herd binaries
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ user }}"
+    mode: 0755
+  with_items:
+    - { src: "../../../redis/bin/redis-server",  dest: "/usr/local/bin/redis-server" }
+    - { src: "../../../build-index/build-index", dest: "/usr/bin/kraken-build-index" }
+    - { src: "../../../origin/origin",           dest: "/usr/bin/kraken-origin" }
+    - { src: "../../../tracker/tracker",         dest: "/usr/bin/kraken-tracker" }
+
+- name: Copy kraken-herd configuration files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ user }}"
+  with_items:
+    - { src: "config", dest: "/etc/kraken/nginx/" }
+    - { src: "../../../test/tls",                dest: "/etc/kraken/" }
+    # - { src: "{{ ansible_fqdn }}_client.pem", dest: "{{ kraken_config_dir }}/tls/client/client.crt" }
+    # - { src: "{{ ansible_fqdn }}_client.key", dest: "{{ kraken_config_dir }}/tls/client/client.key" }
+    # - { src: "{{ ansible_fqdn }}_server.pem", dest: "{{ kraken_config_dir }}/tls/ca/server.crt" }
+    # - { src: "{{ ansible_fqdn }}_server.key", dest: "{{ kraken_config_dir }}/tls/ca/server.key" }
+
+- name: Create kraken-herd configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+    owner: "{{ user }}"
+  with_items:
+    - { src: "origin.yaml.j2",           dest: "/etc/kraken/origin.yaml" }
+    - { src: "origin_base.yaml.j2",      dest: "/etc/kraken/origin_base.yaml" }
+    - { src: "tracker.yaml.j2",          dest: "/etc/kraken/tracker.yaml" }
+    - { src: "tracker_base.yaml.j2",     dest: "/etc/kraken/tracker_base.yaml" }
+    - { src: "build-index.yaml.j2",      dest: "/etc/kraken/build-index.yaml" }
+    - { src: "build-index_base.yaml.j2", dest: "/etc/kraken/build-index_base.yaml" }

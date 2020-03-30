@@ -1,7 +1,6 @@
 ---
 # kraken global variables
 kraken_repo_root: "{{ playbook_dir }}/../.."
-kraken_built_binaries: "{{ kraken_repo_root }}/bin"
 kraken_herd_hosts: "{{ groups['herd'] | map('extract', hostvars, ['ansible_fqdn']) | list }}"
 kraken_config_dir: /etc/kraken
 kraken_binary_dir: /usr/local/bin
@@ -11,7 +10,7 @@ kraken_socket_dir: /run/kraken
 
 # kraken services ports
 kraken_agent_registry_port: 32001
-kraken_agent_peer_port: 32002
+kraken_agent_peer_port: 32004
 kraken_agent_server_port: 32003
 kraken_redis_port: 32001
 kraken_origin_peer_port: 32002
@@ -240,19 +239,19 @@ binary_files:
       dest: "{{ kraken_binary_dir }}"
   kraken_agent:
     kraken_agent_binary:
-      src: "{{ kraken_built_binaries }}/agent"
+      src: "{{ kraken_repo_root }}/bin/agent"
       dest: "{{ kraken_binary_dir }}/kraken-agent"
   kraken_origin:
     kraken_origin_binary:
-      src: "{{ kraken_built_binaries }}/origin"
+      src: "{{ kraken_repo_root }}/bin/origin"
       dest: "{{ kraken_binary_dir }}/kraken-origin"
   kraken_tracker:
     kraken_tracker_binary:
-      src: "{{ kraken_built_binaries }}/tracker"
+      src: "{{ kraken_repo_root }}/bin/tracker"
       dest: "{{ kraken_binary_dir }}/kraken-tracker"
   kraken_build_index:
     kraken_build_index_binary:
-      src: "{{ kraken_built_binaries }}/build-index"
+      src: "{{ kraken_repo_root }}/bin/build-index"
       dest: "{{ kraken_binary_dir }}/kraken-build-index"
 
 config_files:
@@ -319,6 +318,60 @@ config_files:
     nginx_config:
       src: "{{ kraken_repo_root }}/nginx/config/"
       dest: "{{ kraken_config_dir }}/nginx/config/"
+
+# tls_certificates:
+#   kraken_agent:
+#     server_crt:
+#       src: "{{ ansible_fqdn }}_server.pem"
+#       dest: "{{ kraken_config_dir }}/tls/server.crt"
+#     server_key:
+#       src: "{{ ansible_fqdn }}_server.key"
+#       dest: "{{ kraken_config_dir }}/tls/server.key"
+#     client_crt:
+#       src: "{{ ansible_fqdn }}_client.crt"
+#       dest: "{{ kraken_config_dir }}/tls/client.crt"
+#     client_key:
+#       src: "{{ ansible_fqdn }}_client.key"
+#       dest: "{{ kraken_config_dir }}/tls/client.key"
+#   kraken_origin:
+#     server_crt:
+#       src: "{{ ansible_fqdn }}_server.pem"
+#       dest: "{{ kraken_config_dir }}/tls-origin/server.crt"
+#     server_key:
+#       src: "{{ ansible_fqdn }}_server.key"
+#       dest: "{{ kraken_config_dir }}/tls-origin/server.key"
+#     client_crt:
+#       src: "{{ ansible_fqdn }}_client.crt"
+#       dest: "{{ kraken_config_dir }}/tls-origin/client.crt"
+#     client_key:
+#       src: "{{ ansible_fqdn }}_client.key"
+#       dest: "{{ kraken_config_dir }}/tls-origin/client.key"
+#   kraken_tracker:
+#     server_crt:
+#       src: "{{ ansible_fqdn }}_server.pem"
+#       dest: "{{ kraken_config_dir }}/tls-tracker/server.crt"
+#     server_key:
+#       src: "{{ ansible_fqdn }}_server.key"
+#       dest: "{{ kraken_config_dir }}/tls-tracker/server.key"
+#     client_crt:
+#       src: "{{ ansible_fqdn }}_client.crt"
+#       dest: "{{ kraken_config_dir }}/tls-tracker/client.crt"
+#     client_key:
+#       src: "{{ ansible_fqdn }}_client.key"
+#       dest: "{{ kraken_config_dir }}/tls-tracker/client.key"
+#   kraken_build_index:
+#     server_crt:
+#       src: "{{ ansible_fqdn }}_server.pem"
+#       dest: "{{ kraken_config_dir }}/tls-build-index/server.crt"
+#     server_key:
+#       src: "{{ ansible_fqdn }}_server.key"
+#       dest: "{{ kraken_config_dir }}/tls-build-index/server.key"
+#     client_crt:
+#       src: "{{ ansible_fqdn }}_client.crt"
+#       dest: "{{ kraken_config_dir }}/tls-build-index/client.crt"
+#     client_key:
+#       src: "{{ ansible_fqdn }}_client.key"
+#       dest: "{{ kraken_config_dir }}/tls-build-index/client.key"
 
 tls_certificates:
   kraken_agent:

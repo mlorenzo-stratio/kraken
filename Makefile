@@ -42,6 +42,18 @@ REGISTRY ?= gcr.io/uber-container-tools
 build: $(LINUX_BINS)
 	mkdir -p bin/
 	cp ./agent/agent ./build-index/build-index ./origin/origin ./proxy/proxy ./tools/bin/testfs/testfs ./tracker/tracker bin/
+	cp ./agent/agent vagrant/bootstrap/roles/kraken/files/kraken-agent
+	cp ./agent/agent vagrant/devcluster/bootstrap/roles/kraken/files/kraken-agent
+	cp ./origin/origin vagrant/bootstrap/roles/kraken/files/kraken-origin
+	cp ./origin/origin vagrant/devcluster/bootstrap/roles/kraken/files/kraken-origin
+	cp ./tracker/tracker vagrant/bootstrap/roles/kraken/files/kraken-tracker
+	cp ./tracker/tracker vagrant/devcluster/bootstrap/roles/kraken/files/kraken-tracker
+	cp ./build-index/build-index vagrant/bootstrap/roles/kraken/files/kraken-build-index
+	cp ./build-index/build-index vagrant/devcluster/bootstrap/roles/kraken/files/kraken-build-index
+	cp -a nginx/config vagrant/bootstrap/roles/kraken/files/
+	cp -a nginx/config vagrant/devcluster/bootstrap/roles/kraken/files/
+	cp -a test/tls vagrant/bootstrap/roles/kraken/files/
+	cp -a test/tls vagrant/devcluster/bootstrap/roles/kraken/files/
 	redis/build.sh
 
 agent/agent:: $(wildcard agent/*.go)

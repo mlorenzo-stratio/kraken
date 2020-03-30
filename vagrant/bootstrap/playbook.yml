@@ -13,10 +13,10 @@
       lineinfile:
         dest: /etc/hosts
         regexp: '^{{hostvars[item]["ansible_default_ipv4"]["address"]}}\s+'
-        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} {{hostvars[item]['ansible_hostname']}}"
+        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} {{hostvars[item]['ansible_hostname']}} host.docker.internal"
         backup: yes
         state: present
-      with_items: "{{groups['agents']}} + {{groups['herd']}}"
+      with_items: "{{groups['herd']}}"
 
 - hosts: localhost
   become: true
@@ -25,226 +25,48 @@
       lineinfile:
         dest: /etc/hosts
         regexp: '^.*\s+kraken$'
-        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} kraken"
+        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} kraken"
         backup: yes
         state: present
       with_items: "{{groups['agents'][0]}}"
 
 - hosts: herd
   become: true
-  vars:
-    user: root
-    redis_port: 14001
-    origin_peer_port: 15001
-    origin_server_port: 15002
-    tracker_port: 15003
-    build_index_port: 15004
-    hostname: host.docker.internal
   tasks:
-    - name: Install EPEL repository
-      yum:
-        name: epel-release
-        state: latest
-
-    - name: Install packages
-      yum:
-        name: ['curl', 'sqlite', 'nginx']
-        state: latest
-
-    - name: Create kraken folders
-      file:
-        path: "{{ item }}"
-        mode: 0777
-        state: directory
-        owner: "{{ user }}"
-      with_items:
-        - /var/log/kraken/kraken-build-index
-        - /var/log/kraken/kraken-origin
-        - /var/log/kraken/kraken-tracker
-        - /var/cache/kraken/kraken-build-index
-        - /var/cache/kraken/kraken-origin
-        - /var/cache/kraken/kraken-tracker
-        - /var/run/kraken
-        - /var/cache/nginx
-
-    - name: Copy setup_nginx.sh
-      copy:
-        src: ../../docker/setup_nginx.sh
-        dest: /tmp/setup_nginx.sh
-        mode: 0755
-
-    - name: Run setup_nginx.sh
-      shell: /tmp/setup_nginx.sh "{{ user }}"
-
-    - name: Copy kraken binaries
-      copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: "{{ user }}"
-        mode: 0755
-      with_items:
-        - { src: "../../redis/bin/redis-server",  dest: "/usr/local/bin/redis-server" }
-        - { src: "../../build-index/build-index", dest: "/usr/bin/kraken-build-index" }
-        - { src: "../../origin/origin",           dest: "/usr/bin/kraken-origin" }
-        - { src: "../../proxy/proxy",             dest: "/usr/bin/kraken-proxy" }
-        - { src: "../../tracker/tracker",         dest: "/usr/bin/kraken-tracker" }
-
-    - name: Copy kraken configuration files
-      copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: "{{ user }}"
-      with_items:
-        - { src: "../../config",                  dest: "/etc/kraken/" }
-        - { src: "../../nginx/config",            dest: "/etc/kraken/nginx/" }
-        - { src: "../../test/tls",                dest: "/etc/kraken/" }
-        - { src: "../../examples/devcluster/config/agent/development.yaml",       dest: "/etc/kraken/config/agent/development.yaml" }
-        - { src: "../../examples/devcluster/config/origin/development.yaml",      dest: "/etc/kraken/config/origin/development.yaml" }
-        - { src: "../../examples/devcluster/config/tracker/development.yaml",     dest: "/etc/kraken/config/tracker/development.yaml" }
-        - { src: "../../examples/devcluster/config/build-index/development.yaml", dest: "/etc/kraken/config/build-index/development.yaml" }
-        - { src: "../../examples/devcluster/config/proxy/development.yaml",       dest: "/etc/kraken/config/proxy/development.yaml" }
-
-
-    - name: Run redis
-      command: >
-              /usr/local/bin/redis-server
-                    --port {{ redis_port }}
-      async: 45
-      poll: 0
-
-    - name: Run kraken-origin
-      command: >
-              /usr/bin/kraken-origin --config=/etc/kraken/config/origin/development.yaml
-                                     --blobserver-hostname={{ hostname }}
-                                     --blobserver-port={{ origin_server_port}}
-                                     --peer-ip={{ hostname }}
-                                     --peer-port={{ origin_peer_port }}
-      async: 45
-      poll: 0
-
-    - name: Run kraken-tracker
-      command: >
-              /usr/bin/kraken-tracker --config=/etc/kraken/config/tracker/development.yaml
-                                      --port={{ tracker_port }}
-      async: 45
-      poll: 0
-
-    - name: Run kraken-build-index
-      command: >
-              /usr/bin/kraken-build-index --config=/etc/kraken/config/build-index/development.yaml
-                                          --port={{ build_index_port }}
-      async: 45
-      poll: 0
+    - name: Import redis tasks from kraken role
+      import_role:
+        name: kraken
+        tasks_from: redis
 
 - hosts: agents
   become: true
-  vars:
-    user: root
-    agent_registry_port: 16000
-    agent_peer_port: 16001
-    agent_server_port: 16002
-    hostname: host.docker.internal
   tasks:
-    - name: Install EPEL repository
-      yum:
-        name: epel-release
-        state: latest
+    - name: Import agent tasks from kraken role
+      import_role:
+        name: kraken
+        tasks_from: agent
 
-    - name: Install packages
-      yum:
-        name: ['curl', 'nginx']
-        state: latest
+- hosts: herd
+  become: true
+  tasks:
+    - name: Import origin tasks from kraken role
+      import_role:
+        name: kraken
+        tasks_from: origin
 
-    - name: Create kraken-agent folders
-      file:
-        path: "{{ item }}"
-        mode: 0777
-        state: directory
-        owner: "{{ user }}"
-      with_items:
-        - /var/log/kraken/kraken-agent
-        - /var/cache/kraken/kraken-agent
-        - /var/run/kraken
-
-    - name: Copy setup_nginx.sh
-      copy:
-        src: ../../docker/setup_nginx.sh
-        dest: /tmp/setup_nginx.sh
-        mode: 0755
-
-    - name: Run setup_nginx.sh
-      shell: /tmp/setup_nginx.sh "{{ user }}"
-
-    - name: Copy kraken-agent binaries
-      copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: "{{ user }}"
-        mode: 0755
-      with_items:
-        - { src: "../../agent/agent",  dest: "/usr/bin/kraken-agent" }
-
-    - name: Copy kraken-agent configuration files
-      copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: "{{ user }}"
-      with_items:
-        - { src: "../../config",       dest: "/etc/kraken/" }
-        - { src: "../../nginx/config", dest: "/etc/kraken/nginx/" }
-        - { src: "../../test/tls",     dest: "/etc/kraken/" }
-        - { src: "../../examples/devcluster/config/agent/development.yaml", dest: "/etc/kraken/config/agent/development.yaml" }
-
-    - name: Run kraken-agent service
-      command: >
-               /usr/bin/kraken-agent --config=/etc/kraken/config/agent/development.yaml
-                                     --peer-ip={{ hostname }}
-                                     --peer-port={{ agent_peer_port }}
-                                     --agent-server-port={{ agent_server_port }}
-                                     --agent-registry-port={{ agent_registry_port }}
-      async: 45
-      poll: 0
+- hosts: herd
+  become: true
+  tasks:
+    - name: Import tracker tasks from kraken role
+      import_role:
+        name: kraken
+        tasks_from: tracker
 
 
-
-
-# - hosts: herd
-#   become: true
-#   tasks:
-#     - name: Import redis tasks from kraken role
-#       import_role:
-#         name: kraken
-#         tasks_from: redis
-
-# - hosts: agents
-#   become: true
-#   tasks:
-#     - name: Import agent tasks from kraken role
-#       import_role:
-#         name: kraken
-#         tasks_from: agent
-
-# - hosts: herd
-#   become: true
-#   tasks:
-#     - name: Import origin tasks from kraken role
-#       import_role:
-#         name: kraken
-#         tasks_from: origin
-
-# - hosts: herd
-#   become: true
-#   tasks:
-#     - name: Import tracker tasks from kraken role
-#       import_role:
-#         name: kraken
-#         tasks_from: tracker
-
-
-# - hosts: herd
-#   become: true
-#   tasks:
-#     - name: Import build-index tasks from kraken role
-#       import_role:
-#         name: kraken
-#         tasks_from: build-index
+- hosts: herd
+  become: true
+  tasks:
+    - name: Import build-index tasks from kraken role
+      import_role:
+        name: kraken
+        tasks_from: build-index

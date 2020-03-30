@@ -1,0 +1,40 @@
+[Unit]
+Description={{ service }}
+After=network.target
+
+[Service]
+Type=exec
+Restart=always
+
+StartLimitInterval=0
+RestartSec=15
+TimeoutStartSec=120
+TimeoutStopSec=15
+
+User={{ user }}
+Group={{ group }}
+UMask=0002
+
+PermissionsStartOnly=true
+ExecStartPre=/usr/bin/bash -c "if ! kill -0 $MAINPID; then rm -f {{ kraken_origin_socket }}; fi"
+ExecStartPre=/usr/bin/touch {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt /var/cache/kraken/nginx.pid
+ExecStartPre=/usr/bin/mkdir -p {{ kraken_socket_dir }}
+ExecStartPre=/usr/bin/chown root:{{ group }} {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt
+ExecStartPre=/usr/bin/chmod g+w {{ kraken_socket_dir }} {{ kraken_log_dir }}/nginx-error.log {{ kraken_log_dir }}/nginx-stdout.log /var/log/nginx/error.log /var/cache/nginx/ca.crt
+ExecStartPre=/usr/bin/chown :kraken /var/cache/kraken/nginx.pid
+ExecStartPre=/usr/bin/chmod 777 /var/cache/kraken/nginx.pid
+
+ExecStart={{ kraken_binary_dir }}/kraken-origin \
+          --config={{ kraken_config_dir }}/kraken-origin.yaml \
+          --blobserver-hostname={{ ansible_fqdn }} \
+          --blobserver-port={{ kraken_origin_server_port }} \
+{% for herd_host in kraken_herd_hosts %}
+          --peer-ip={{ herd_host }} \
+{% endfor %}
+          --peer-port={{ kraken_origin_peer_port }}
+
+ExecStartPost=/usr/bin/sleep 1
+ExecStartPost=/bin/kill -0 $MAINPID
+
+[Install]
+WantedBy=multi-user.target
