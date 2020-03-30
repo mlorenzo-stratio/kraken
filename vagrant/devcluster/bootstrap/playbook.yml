@@ -40,8 +40,6 @@
 
 - hosts: agents
   become: true
-  vars:
-    user: kraken
   tasks:
     - name: Import herd tasks from kraken role
       import_role:

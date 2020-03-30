@@ -15,9 +15,9 @@ zap:
     durationEncoder: seconds
     callerEncoder: short
   outputPaths:
-    - {{ kraken_log_dir }}/kraken-agent.log
+    - {{ kraken_log_dir }}/agent.log
   errorOutputPaths:
-    - {{ kraken_log_dir }}/kraken-agent.log
+    - {{ kraken_log_dir }}/agent.log
 
 metrics:
   m3:
@@ -52,7 +52,7 @@ registry:
       level: error
     http:
       net: unix
-      addr: {{ kraken_socket_dir }}/kraken-agent.sock
+      addr: {{ kraken_socket_dir }}/agent.sock
 
 peer_id_factory: addr_hash
 

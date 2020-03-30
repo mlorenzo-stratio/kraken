@@ -63,8 +63,8 @@
     owner: "{{ user }}"
     group: "{{ group }}"
   with_items:
-    - { src: "config", dest: "/etc/kraken/nginx/" }
-    - { src: "tls",    dest: "/etc/kraken/" }
+    - { src: "config", dest: "{{ kraken_config_dir }}/nginx/" }
+    - { src: "tls",    dest: "{{ kraken_config_dir }}/" }
     # - { src: "{{ ansible_fqdn }}_client.pem", dest: "{{ kraken_config_dir }}/tls/client/client.crt" }
     # - { src: "{{ ansible_fqdn }}_client.key", dest: "{{ kraken_config_dir }}/tls/client/client.key" }
     # - { src: "{{ ansible_fqdn }}_server.pem", dest: "{{ kraken_config_dir }}/tls/ca/server.crt" }
@@ -79,8 +79,8 @@
     owner: "{{ user }}"
     group: "{{ group }}"
   with_items:
-    - { src: "agent.yaml.j2",      dest: "/etc/kraken/agent.yaml" }
-    - { src: "agent_base.yaml.j2", dest: "/etc/kraken/base.yaml" }
+    - { src: "agent.yaml.j2",      dest: "{{ kraken_config_dir }}/agent.yaml" }
+    - { src: "agent_base.yaml.j2", dest: "{{ kraken_config_dir }}/base.yaml" }
   notify: Start kraken-agent service
 
 - name: Install kraken-agent service

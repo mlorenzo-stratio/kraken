@@ -11,7 +11,7 @@ kraken_nginx_log_dir: /var/log/nginx
 kraken_nginx_lib_dir: /var/lib/nginx
 kraken_nginx_lib_tmp_dir: /var/lib/nginx/tmp
 
-user: root
+user: kraken
 group: kraken
 
 # Kraken herd ports

@@ -1,9 +1,9 @@
 localdb:
-  source: {{ kraken_cache_dir }}/kraken-build-index/index.db
+  source: {{ kraken_cache_dir }}/build-index/index.db
 
 store:
-  upload_dir: {{ kraken_cache_dir }}/kraken-build-index/upload/
-  cache_dir: {{ kraken_cache_dir }}/kraken-build-index/cache/
+  upload_dir: {{ kraken_cache_dir }}/build-index/upload/
+  cache_dir: {{ kraken_cache_dir }}/build-index/cache/
 
 tag_store:
   write_through: true
@@ -25,9 +25,9 @@ zap:
     durationEncoder: seconds
     callerEncoder: short
   outputPaths:
-    - {{ kraken_log_dir }}/kraken-build-index.log
+    - {{ kraken_log_dir }}/build-index.log
   errorOutputPaths:
-    - {{ kraken_log_dir }}/kraken-build-index.log
+    - {{ kraken_log_dir }}/build-index.log
 
 metrics:
   m3:
@@ -36,9 +36,9 @@ metrics:
 tagserver:
   listener:
     net: unix
-    addr: {{ kraken_socket_dir }}/kraken-build-index.sock
+    addr: {{ kraken_socket_dir }}/build-index.sock
 
 nginx:
   name: kraken-build-index
-  cache_dir: {{ kraken_cache_dir }}/kraken-build-index/nginx
+  cache_dir: {{ kraken_cache_dir }}/build-index/nginx
   log_dir: {{ kraken_log_dir }}

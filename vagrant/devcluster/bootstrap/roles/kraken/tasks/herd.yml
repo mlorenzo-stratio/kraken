@@ -36,23 +36,16 @@
   with_items:
     - "{{ kraken_config_dir }}/tls/ca"
     - "{{ kraken_config_dir }}/tls/client"
-    - "{{ kraken_cache_dir }}/kraken-origin"
-    - "{{ kraken_cache_dir }}/kraken-tracker"
-    - "{{ kraken_cache_dir }}/kraken-build-index"
+    - "{{ kraken_log_dir }}"
+    - "{{ kraken_cache_dir }}/origin"
+    - "{{ kraken_cache_dir }}/tracker"
+    - "{{ kraken_cache_dir }}/build-index"
+    - "{{ kraken_cache_dir }}/redis"
     - "{{ kraken_socket_dir }}"
     - "{{ kraken_nginx_cache_dir }}"
     - "{{ kraken_nginx_log_dir }}"
     - "{{ kraken_nginx_lib_dir }}"
     - "{{ kraken_nginx_lib_tmp_dir }}"
-
-- name: Copy setup_nginx.sh
-  copy:
-    src: ../../../docker/setup_nginx.sh
-    dest: /tmp/setup_nginx.sh
-    mode: 0755
-
-- name: Run setup_nginx.sh
-  shell: /tmp/setup_nginx.sh "{{ user }}"
 
 - name: Copy kraken-herd binaries
   copy:
@@ -61,10 +54,10 @@
     owner: "{{ user }}"
     mode: 0755
   with_items:
-    - { src: "../../../redis/bin/redis-server",  dest: "/usr/local/bin/redis-server" }
-    - { src: "../../../build-index/build-index", dest: "/usr/bin/kraken-build-index" }
-    - { src: "../../../origin/origin",           dest: "/usr/bin/kraken-origin" }
-    - { src: "../../../tracker/tracker",         dest: "/usr/bin/kraken-tracker" }
+    - { src: "redis-server",       dest: "{{ kraken_binary_dir }}/redis-server" }
+    - { src: "kraken-build-index", dest: "{{ kraken_binary_dir }}/kraken-build-index" }
+    - { src: "kraken-origin",      dest: "{{ kraken_binary_dir }}/kraken-origin" }
+    - { src: "kraken-tracker",     dest: "{{ kraken_binary_dir }}/kraken-tracker" }
 
 - name: Copy kraken-herd configuration files
   copy:
@@ -72,8 +65,8 @@
     dest: "{{ item.dest }}"
     owner: "{{ user }}"
   with_items:
-    - { src: "config", dest: "/etc/kraken/nginx/" }
-    - { src: "../../../test/tls",                dest: "/etc/kraken/" }
+    - { src: "config", dest: "{{ kraken_config_dir }}/nginx/" }
+    - { src: "tls",    dest: "{{ kraken_config_dir }}/" }
     # - { src: "{{ ansible_fqdn }}_client.pem", dest: "{{ kraken_config_dir }}/tls/client/client.crt" }
     # - { src: "{{ ansible_fqdn }}_client.key", dest: "{{ kraken_config_dir }}/tls/client/client.key" }
     # - { src: "{{ ansible_fqdn }}_server.pem", dest: "{{ kraken_config_dir }}/tls/ca/server.crt" }
@@ -86,9 +79,47 @@
     mode: 0644
     owner: "{{ user }}"
   with_items:
-    - { src: "origin.yaml.j2",           dest: "/etc/kraken/origin.yaml" }
-    - { src: "origin_base.yaml.j2",      dest: "/etc/kraken/origin_base.yaml" }
-    - { src: "tracker.yaml.j2",          dest: "/etc/kraken/tracker.yaml" }
-    - { src: "tracker_base.yaml.j2",     dest: "/etc/kraken/tracker_base.yaml" }
-    - { src: "build-index.yaml.j2",      dest: "/etc/kraken/build-index.yaml" }
-    - { src: "build-index_base.yaml.j2", dest: "/etc/kraken/build-index_base.yaml" }
+    - { src: "redis.conf.j2",            dest: "{{ kraken_config_dir }}/redis.conf" }
+    - { src: "origin.yaml.j2",           dest: "{{ kraken_config_dir }}/origin.yaml" }
+    - { src: "origin_base.yaml.j2",      dest: "{{ kraken_config_dir }}/origin_base.yaml" }
+    - { src: "tracker.yaml.j2",          dest: "{{ kraken_config_dir }}/tracker.yaml" }
+    - { src: "tracker_base.yaml.j2",     dest: "{{ kraken_config_dir }}/tracker_base.yaml" }
+    - { src: "build-index.yaml.j2",      dest: "{{ kraken_config_dir }}/build-index.yaml" }
+    - { src: "build-index_base.yaml.j2", dest: "{{ kraken_config_dir }}/build-index_base.yaml" }
+
+
+- name: Install kraken-redis service
+  template:
+    src: redis.service.j2
+    dest: /etc/systemd/system/kraken-redis.service
+    mode: 0755
+    owner: root
+    group: root
+  notify: Start kraken-redis service
+
+- name: Install kraken-origin service
+  template:
+    src: origin.service.j2
+    dest: /etc/systemd/system/kraken-origin.service
+    mode: 0755
+    owner: root
+    group: root
+  notify: Start kraken-origin service
+
+- name: Install kraken-tracker service
+  template:
+    src: tracker.service.j2
+    dest: /etc/systemd/system/kraken-tracker.service
+    mode: 0755
+    owner: root
+    group: root
+  notify: Start kraken-tracker service
+
+- name: Install kraken-build-index service
+  template:
+    src: build-index.service.j2
+    dest: /etc/systemd/system/kraken-build-index.service
+    mode: 0755
+    owner: root
+    group: root
+  notify: Start kraken-build-index service

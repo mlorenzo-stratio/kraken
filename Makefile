@@ -50,6 +50,8 @@ build: $(LINUX_BINS)
 	cp ./tracker/tracker vagrant/devcluster/bootstrap/roles/kraken/files/kraken-tracker
 	cp ./build-index/build-index vagrant/bootstrap/roles/kraken/files/kraken-build-index
 	cp ./build-index/build-index vagrant/devcluster/bootstrap/roles/kraken/files/kraken-build-index
+	cp ./redis/bin/redis-server vagrant/bootstrap/roles/kraken/files/redis-server
+	cp ./redis/bin/redis-server vagrant/devcluster/bootstrap/roles/kraken/files/redis-server
 	cp -a nginx/config vagrant/bootstrap/roles/kraken/files/
 	cp -a nginx/config vagrant/devcluster/bootstrap/roles/kraken/files/
 	cp -a test/tls vagrant/bootstrap/roles/kraken/files/
