@@ -14,6 +14,8 @@ TimeoutStopSec=15
 User={{ user }}
 Group={{ group }}
 
+ExecStartPre=-/usr/bin/rm -f {{ kraken_socket_dir }}/build-index.sock
+
 ExecStart={{ kraken_binary_dir }}/kraken-build-index \
           --config={{ kraken_config_dir }}/build-index.yaml \
           --port={{ build_index_port }}

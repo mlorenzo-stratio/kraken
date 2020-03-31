@@ -1,0 +1,76 @@
+- name: Remove pki certs folder
+  file:
+    path: "{{ pki_gencert_path }}"
+    state: absent
+
+- name: Create pki certs folder
+  file:
+    path: "{{ pki_gencert_path }}"
+    state: directory
+    mode: 0700
+
+- name: Check if PKI exists
+  stat:
+    path: "{{ pki_path }}"
+  register: pki_dir
+
+- block:
+  - name: Set random PKI password
+    set_fact:
+      pki_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=40') }}"
+
+  - name: Create PKI folder
+    file:
+      path: "{{ pki_path }}"
+      mode: 0755
+      state: directory
+
+  - name: Store PKI's password
+    template:
+      src: password.j2
+      dest: "{{ pki_password_path }}"
+      mode: 0640
+    vars:
+      password: "{{ pki_password }}"
+
+  - name: Create CA key
+    openssl_privatekey:
+      path: "{{ pki_ca_root_key_path }}"
+      passphrase: "{{ pki_password }}"
+      cipher: auto
+
+  - name: Create CA csr
+    openssl_csr:
+      path: "{{ pki_ca_root_csr_path }}"
+      privatekey_path: "{{ pki_ca_root_key_path }}"
+      privatekey_passphrase: "{{ pki_password }}"
+      common_name: kraken
+      use_common_name_for_san: no
+      key_usage_critical: yes
+      key_usage:
+        - keyCertSign
+        - cRLSign
+      basic_constraints_critical: yes
+      basic_constraints:
+        - CA:TRUE
+
+  - name: Create CA certificate
+    openssl_certificate:
+      path: "{{ pki_ca_root_path }}"
+      privatekey_path: "{{ pki_ca_root_key_path }}"
+      privatekey_passphrase: "{{ pki_password }}"
+      csr_path: "{{ pki_ca_root_csr_path }}"
+      selfsigned_not_after: +3650d
+      provider: selfsigned
+
+  - name: Create CA Bundle
+    copy:
+      src: "{{ pki_ca_root_path }}"
+      dest: "{{ pki_ca_root_bundle_path }}"
+      remote_src: yes
+  when: not pki_dir.stat.exists
+
+- name: Copy CA certificate
+  copy:
+    src: "{{ pki_ca_root_bundle_path }}"
+    dest: "{{ pki_gencert_path }}/ca.bundle"

@@ -57,6 +57,7 @@ docs/_build/
 env*
 *.pyc
 *.pickle
+*.tgz
 
 # For integration tests.
 .tmptest/
@@ -74,6 +75,7 @@ redis/bin
 bin/
 
 # Kraken binaries in ansible role
+vagrant/pki
 vagrant/bootstrap/roles/kraken/files/redis-server
 vagrant/bootstrap/roles/kraken/files/kraken-agent
 vagrant/bootstrap/roles/kraken/files/kraken-build-index
@@ -81,10 +83,4 @@ vagrant/bootstrap/roles/kraken/files/kraken-origin
 vagrant/bootstrap/roles/kraken/files/kraken-tracker
 vagrant/bootstrap/roles/kraken/files/config
 vagrant/bootstrap/roles/kraken/files/tls
-vagrant/devcluster/bootstrap/roles/kraken/files/redis-server
-vagrant/devcluster/bootstrap/roles/kraken/files/kraken-agent
-vagrant/devcluster/bootstrap/roles/kraken/files/kraken-origin
-vagrant/devcluster/bootstrap/roles/kraken/files/kraken-tracker
-vagrant/devcluster/bootstrap/roles/kraken/files/kraken-build-index
-vagrant/devcluster/bootstrap/roles/kraken/files/config
-vagrant/devcluster/bootstrap/roles/kraken/files/tls
+vagrant/bootstrap/roles/kraken/files/.certs

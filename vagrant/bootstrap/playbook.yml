@@ -13,7 +13,7 @@
       lineinfile:
         dest: /etc/hosts
         regexp: '^{{hostvars[item]["ansible_default_ipv4"]["address"]}}\s+'
-        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} {{hostvars[item]['ansible_hostname']}} host.docker.internal"
+        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} {{hostvars[item]['ansible_hostname']}} herd.kraken.cluster"
         backup: yes
         state: present
       with_items: "{{groups['herd']}}"
@@ -25,18 +25,77 @@
       lineinfile:
         dest: /etc/hosts
         regexp: '^.*\s+kraken$'
-        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} kraken"
+        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} registry registry.kraken.cluster"
         backup: yes
         state: present
       with_items: "{{groups['agents'][0]}}"
 
+- hosts: localhost
+  tasks:
+    - name: Create pki
+      import_role:
+        name: kraken
+        tasks_from: create_ca
+
+- hosts: herd
+  tasks:
+    - name: Create certificates
+      import_role:
+        name: kraken
+        tasks_from: gencert
+      vars:
+        cn: kraken
+        sans: "DNS:{{ ansible_fqdn }},DNS:herd,DNS:herd.kraken.cluster"
+        tag: client
+        extended_key_usage:
+          - clientAuth
+      delegate_to: localhost
+
+    - name: Create certificates
+      import_role:
+        name: kraken
+        tasks_from: gencert
+      vars:
+        cn: kraken
+        sans: "DNS:{{ ansible_fqdn }},DNS:herd,DNS:herd.kraken.cluster"
+        tag: server
+        extended_key_usage:
+          - serverAuth
+      delegate_to: localhost
+
 - hosts: herd
   become: true
   tasks:
-    - name: Import redis tasks from kraken role
+    - name: Import herd tasks from kraken role
       import_role:
         name: kraken
-        tasks_from: redis
+        tasks_from: herd
+
+- hosts: agents
+  tasks:
+    - name: Create certificates
+      import_role:
+        name: kraken
+        tasks_from: gencert
+      vars:
+        cn: kraken
+        sans: "DNS:{{ ansible_fqdn }},DNS:registry,DNS:registry.kraken.cluster"
+        tag: client
+        extended_key_usage:
+          - clientAuth
+      delegate_to: localhost
+
+    - name: Create certificates
+      import_role:
+        name: kraken
+        tasks_from: gencert
+      vars:
+        cn: kraken
+        sans: "DNS:{{ ansible_fqdn }},DNS:registry,DNS:registry.kraken.cluster"
+        tag: server
+        extended_key_usage:
+          - serverAuth
+      delegate_to: localhost
 
 - hosts: agents
   become: true
@@ -46,27 +105,44 @@
         name: kraken
         tasks_from: agent
 
-- hosts: herd
+- hosts: localhost
   become: true
   tasks:
-    - name: Import origin tasks from kraken role
-      import_role:
-        name: kraken
-        tasks_from: origin
+    - name: Create /etc/docker/certs.d folders
+      file:
+        path: "{{ item }}"
+        mode: 0775
+        state: directory
+        owner: root
+        group: root
+      with_items:
+        - "/etc/docker/certs.d/registry.kraken.cluster:32001"
+        - "/etc/docker/certs.d/registry:32001"
 
-- hosts: herd
-  become: true
-  tasks:
-    - name: Import tracker tasks from kraken role
-      import_role:
-        name: kraken
-        tasks_from: tracker
+    - name: Copy CA certificate to /etc/docker/certs.d/registry.kraken.cluster:32001 and registry:32001
+      copy:
+        src: "../pki/ca.crt"
+        dest: "{{ item }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - "/etc/docker/certs.d/registry.kraken.cluster:32001/ca.crt"
+        - "/etc/docker/certs.d/registry:32001/ca.crt"
 
+    - name: Remove python:3.8.2 test image
+      docker_image:
+        state: absent
+        name: registry.kraken.cluster:32001/library/python
+        tag: 3.8.2
 
-- hosts: herd
-  become: true
-  tasks:
-    - name: Import build-index tasks from kraken role
-      import_role:
-        name: kraken
-        tasks_from: build-index
+    - name: Pull python:3.8.2 test image
+      docker_image:
+        name: registry.kraken.cluster:32001/library/python
+        source: pull
+        tag: 3.8.2
+      register: test
+
+    - name: Test result
+      debug:
+        var: test

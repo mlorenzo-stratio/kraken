@@ -1,5 +1,5 @@
 [Unit]
-Description=kraken-origin
+Description=kraken-agent
 After=network.target
 
 [Service]
@@ -14,14 +14,16 @@ TimeoutStopSec=15
 User={{ user }}
 Group={{ group }}
 
-ExecStart={{ kraken_binary_dir }}/kraken-origin \
-          --config={{ kraken_config_dir }}/origin.yaml \
-          --blobserver-hostname={{ ansible_fqdn }} \
-          --blobserver-port={{ origin_server_port }} \
+ExecStartPre=-/usr/bin/rm -f {{ kraken_socket_dir }}/agent.sock
+
+ExecStart={{ kraken_binary_dir }}/kraken-agent \
+          --config={{ kraken_config_dir }}/agent.yaml \
 {% for herd_host in herd_hosts %}
           --peer-ip={{ herd_host }} \
 {% endfor %}
-          --peer-port={{ origin_peer_port }}
+          --peer-port={{ agent_peer_port }} \
+          --agent-server-port={{ agent_server_port }} \
+          --agent-registry-port={{ agent_registry_port }}
 
 ExecStartPost=/usr/bin/sleep 1
 ExecStartPost=/bin/kill -0 $MAINPID

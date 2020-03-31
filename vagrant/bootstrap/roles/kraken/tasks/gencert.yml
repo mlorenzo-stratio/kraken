@@ -1,0 +1,89 @@
+# Expects the variable {{ cn }} to be set and, optionally, {{ sans }} and {{ passphrase }} to add SANs and private key passphrase respectively
+
+- name: Check if PKI password file exists
+  stat:
+    path: "{{ pki_password_path }}"
+  register: pki_password_file
+  failed_when: not pki_password_file.stat.exists
+
+- name: Slurp PKI password
+  slurp:
+    src: "{{ pki_password_path }}"
+  register: slurp
+
+- name: Read PKI password
+  set_fact:
+    pki_password: "{{ slurp['content'] | b64decode }}"
+
+- block:
+  - name: Create key
+    openssl_privatekey:
+      path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.key"
+
+  - name: Create csr
+    openssl_csr:
+      path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.csr"
+      privatekey_path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.key"
+      common_name: "{{ cn }}"
+      subject_alt_name: "DNS:{{ cn }}{% if sans is defined %},{{ sans }}{% endif %}"
+      key_usage_critical: "yes"
+      key_usage:
+        - digitalSignature
+        - keyEncipherment
+      extended_key_usage: "{{ extended_key_usage }}"
+
+  - name: Create certificate
+    openssl_certificate:
+      path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.crt"
+      ownca_privatekey_path: "{{ pki_ca_root_key_path }}"
+      ownca_privatekey_passphrase: "{{ pki_password }}"
+      ownca_path: "{{ pki_path }}/{{ pki_ca_root_name }}"
+      ownca_not_after: +1825d
+      csr_path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.csr"
+      provider: ownca
+  when: not use_passphrase | default(false) | bool
+
+- block:
+  - name: Set random PKI password for private key
+    set_fact:
+      key_passphrase: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=40') }}"
+
+  - name: Create key
+    openssl_privatekey:
+      path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.key"
+      passphrase: "{{ key_passphrase }}"
+      cipher: auto
+
+  - name: Store Private key passphrase
+    template:
+      src: password.j2
+      dest: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.passphrase"
+      mode: 0640
+    vars:
+      password: "{{ key_passphrase }}"
+
+  - name: Create csr
+    openssl_csr:
+      path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.csr"
+      privatekey_path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.key"
+      common_name: "{{ cn }}"
+      subject_alt_name: "DNS:{{ cn }}{% if sans is defined %},{{ sans }}{% endif %}"
+      privatekey_passphrase: "{{ key_passphrase }}"
+      key_usage_critical: "yes"
+      key_usage:
+        - digitalSignature
+        - keyEncipherment
+      extended_key_usage: "{{ extended_key_usage }}"
+
+  - name: Create certificate
+    openssl_certificate:
+      path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.pem"
+      ownca_privatekey_path: "{{ pki_ca_root_key_path }}"
+      ownca_privatekey_passphrase: "{{ pki_password }}"
+      ownca_path: "{{ pki_path }}/{{ pki_ca_root_name }}"
+      privatekey_passphrase: "{{ key_passphrase }}"
+      ownca_not_after: +1825d
+      csr_path: "{{ pki_gencert_path }}/{{ ansible_hostname }}_{{ tag }}.csr"
+      provider: ownca
+  when: use_passphrase | default(false) | bool
+

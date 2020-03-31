@@ -1,4 +1,3 @@
----
 - name: Install EPEL repository
   yum:
     name: epel-release
@@ -6,17 +5,92 @@
 
 - name: Install packages
   yum:
-    name: ['curl', 'nginx']
+    name: nginx-1.16.1
     state: latest
+  notify: Start kraken-agent service
 
-- name: Install kraken-agent
-  import_tasks: install_kraken_service.yml
-  vars:
-    service: kraken-agent
-    user: kraken
-    group: kraken
-    service_folders: "{{ kraken_agent_folders }}"
-    service_binary_files: "{{ binary_files.kraken_agent }}"
-    service_config_templates: "{{ config_files.kraken_agent_templates }}"
-    service_config_files: "{{ config_files.kraken_agent_files }}"
-    service_tls_certificates: "{{ tls_certificates.kraken_agent }}"
+- name: Create {{ group }} group
+  group:
+    name: "{{ group }}"
+    state: present
+    system: yes
+  notify: Start kraken-agent service
+  when: group is defined
+
+- name: Create {{ user }} user
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    state: present
+    system: yes
+  notify: Start kraken-agent service
+  when: user is defined
+
+- name: Create kraken-agent folders
+  file:
+    path: "{{ item }}"
+    mode: 0775
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_items:
+    - "{{ kraken_config_dir }}/tls/ca"
+    - "{{ kraken_config_dir }}/tls/client"
+    - "{{ kraken_log_dir }}"
+    - "{{ kraken_cache_dir }}"
+    - "{{ kraken_socket_dir }}"
+    - "{{ kraken_nginx_cache_dir }}"
+    - "{{ kraken_nginx_log_dir }}"
+    - "{{ kraken_nginx_lib_dir }}"
+    - "{{ kraken_nginx_lib_tmp_dir }}"
+  notify: Start kraken-agent service
+
+- name: Copy kraken-agent binary
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: 0755
+  with_items:
+    - { src: "kraken-agent",  dest: "{{ kraken_binary_dir }}/kraken-agent" }
+  notify: Start kraken-agent service
+
+- name: Copy kraken-agent configuration files & certificates
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_items:
+    # - { src: "tls",    dest: "{{ kraken_config_dir }}/" }
+    # - { src: "tls/ca/server.crt",                                 dest: "{{ kraken_config_dir }}/tls/ca/ca.crt" }
+    - { src: ".certs/ca.bundle",                                dest: "{{ kraken_config_dir }}/tls/ca/ca.crt" }
+    - { src: ".certs/{{ ansible_hostname }}_client.pem",        dest: "{{ kraken_config_dir }}/tls/client/client.crt" }
+    - { src: ".certs/{{ ansible_hostname }}_client.key",        dest: "{{ kraken_config_dir }}/tls/client/client.key" }
+    - { src: ".certs/{{ ansible_hostname }}_client.passphrase", dest: "{{ kraken_config_dir }}/tls/client/passphrase" }
+    - { src: ".certs/{{ ansible_hostname }}_server.pem",        dest: "{{ kraken_config_dir }}/tls/ca/server.crt" }
+    - { src: ".certs/{{ ansible_hostname }}_server.key",        dest: "{{ kraken_config_dir }}/tls/ca/server.key" }
+    - { src: ".certs/{{ ansible_hostname }}_server.passphrase", dest: "{{ kraken_config_dir }}/tls/ca/passphrase" }
+  notify: Start kraken-agent service
+
+- name: Create kraken configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_items:
+    - { src: "agent.yaml.j2",      dest: "{{ kraken_config_dir }}/agent.yaml" }
+    - { src: "agent_base.yaml.j2", dest: "{{ kraken_config_dir }}/agent_base.yaml" }
+  notify: Start kraken-agent service
+
+- name: Install kraken-agent service
+  template:
+    src: agent.service.j2
+    dest: /etc/systemd/system/kraken-agent.service
+    mode: 0755
+    owner: root
+    group: root
+  notify: Start kraken-agent service

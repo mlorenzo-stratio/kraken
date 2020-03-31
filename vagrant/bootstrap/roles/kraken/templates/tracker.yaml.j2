@@ -1,26 +1,28 @@
-{#
-extends: base.yaml
+extends: tracker_base.yaml
 
 peerstore:
   redis:
-    addr: 127.0.0.1:14001
+    addr: 127.0.0.1:{{ redis_port }}
 
 origin:
   hosts:
     static:
-      - host.docker.internal:15002
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ origin_server_port }}
+{% endfor %}
 
 trackerserver:
   announce_interval: 3s
 
 nginx:
-  cache_dir: /tmp/kraken-tracker-nginx/
+  cache_dir: {{ kraken_cache_dir }}/tracker
 
 tls:
   name: kraken
   cas:
-  - path: /etc/kraken/tls/ca/server.crt
+  - path: /etc/kraken/tls/ca/ca.crt
   server:
+    disabled: false
     cert:
       path: /etc/kraken/tls/ca/server.crt
     key:
@@ -35,19 +37,17 @@ tls:
     passphrase:
       path: /etc/kraken/tls/client/passphrase
 
-#}
-
-extends: kraken-tracker_base.yaml
+{# extends: kraken-tracker_base.yaml
 
 peerstore:
   redis:
-    addr: 127.0.0.1:{{ kraken_redis_port }}
+    addr: 127.0.0.1:{{ redis_port }}
 
 origin:
   hosts:
     static:
-{% for herd_host in kraken_herd_hosts %}
-      - {{ herd_host }}:{{ kraken_origin_server_port }}
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ origin_server_port }}
 {% endfor %}
 
 trackerserver:
@@ -79,3 +79,4 @@ tls:
     passphrase:
       path: {{ kraken_config_dir }}/tls-tracker/client.passphrase
 {% endif %}
+ #}

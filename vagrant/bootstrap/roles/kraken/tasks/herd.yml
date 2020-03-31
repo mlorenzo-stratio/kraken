@@ -5,16 +5,22 @@
 
 - name: Install packages
   yum:
-    name: ['curl', 'sqlite', 'nginx']
+    name: ['sqlite-3.7.17', 'nginx-1.16.1']
     state: latest
-  # notify: Start kraken-herd services
+  notify:
+    - Start kraken-origin service
+    - Start kraken-tracker service
+    - Start kraken-build-index service
 
 - name: Create {{ group }} group
   group:
     name: "{{ group }}"
     state: present
     system: yes
-  # notify: Start kraken-herd services
+  notify:
+    - Start kraken-origin service
+    - Start kraken-tracker service
+    - Start kraken-build-index service
   when: group is defined
 
 - name: Create {{ user }} user
@@ -23,7 +29,10 @@
     group: "{{ group }}"
     state: present
     system: yes
-  # notify: Start kraken-herd services
+  notify:
+    - Start kraken-origin service
+    - Start kraken-tracker service
+    - Start kraken-build-index service
   when: user is defined
 
 - name: Create kraken-herd folders
@@ -46,6 +55,10 @@
     - "{{ kraken_nginx_log_dir }}"
     - "{{ kraken_nginx_lib_dir }}"
     - "{{ kraken_nginx_lib_tmp_dir }}"
+  notify:
+    - Start kraken-origin service
+    - Start kraken-tracker service
+    - Start kraken-build-index service
 
 - name: Copy kraken-herd binaries
   copy:
@@ -58,19 +71,30 @@
     - { src: "kraken-build-index", dest: "{{ kraken_binary_dir }}/kraken-build-index" }
     - { src: "kraken-origin",      dest: "{{ kraken_binary_dir }}/kraken-origin" }
     - { src: "kraken-tracker",     dest: "{{ kraken_binary_dir }}/kraken-tracker" }
+  notify:
+    - Start kraken-origin service
+    - Start kraken-tracker service
+    - Start kraken-build-index service
 
-- name: Copy kraken-herd configuration files
+- name: Copy kraken-herd configuration files & certificates
   copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: "{{ user }}"
   with_items:
-    - { src: "config", dest: "{{ kraken_config_dir }}/nginx/" }
-    - { src: "tls",    dest: "{{ kraken_config_dir }}/" }
-    # - { src: "{{ ansible_fqdn }}_client.pem", dest: "{{ kraken_config_dir }}/tls/client/client.crt" }
-    # - { src: "{{ ansible_fqdn }}_client.key", dest: "{{ kraken_config_dir }}/tls/client/client.key" }
-    # - { src: "{{ ansible_fqdn }}_server.pem", dest: "{{ kraken_config_dir }}/tls/ca/server.crt" }
-    # - { src: "{{ ansible_fqdn }}_server.key", dest: "{{ kraken_config_dir }}/tls/ca/server.key" }
+    # - { src: "tls",    dest: "{{ kraken_config_dir }}/" }
+    # - { src: "tls/ca/server.crt",                                 dest: "{{ kraken_config_dir }}/tls/ca/ca.crt" }
+    - { src: ".certs/ca.bundle",                                dest: "{{ kraken_config_dir }}/tls/ca/ca.crt" }
+    - { src: ".certs/{{ ansible_hostname }}_client.pem",        dest: "{{ kraken_config_dir }}/tls/client/client.crt" }
+    - { src: ".certs/{{ ansible_hostname }}_client.key",        dest: "{{ kraken_config_dir }}/tls/client/client.key" }
+    - { src: ".certs/{{ ansible_hostname }}_client.passphrase", dest: "{{ kraken_config_dir }}/tls/client/passphrase" }
+    - { src: ".certs/{{ ansible_hostname }}_server.pem",        dest: "{{ kraken_config_dir }}/tls/ca/server.crt" }
+    - { src: ".certs/{{ ansible_hostname }}_server.key",        dest: "{{ kraken_config_dir }}/tls/ca/server.key" }
+    - { src: ".certs/{{ ansible_hostname }}_server.passphrase", dest: "{{ kraken_config_dir }}/tls/ca/passphrase" }
+  notify:
+    - Start kraken-origin service
+    - Start kraken-tracker service
+    - Start kraken-build-index service
 
 - name: Create kraken-herd configuration files
   template:
@@ -86,7 +110,11 @@
     - { src: "tracker_base.yaml.j2",     dest: "{{ kraken_config_dir }}/tracker_base.yaml" }
     - { src: "build-index.yaml.j2",      dest: "{{ kraken_config_dir }}/build-index.yaml" }
     - { src: "build-index_base.yaml.j2", dest: "{{ kraken_config_dir }}/build-index_base.yaml" }
-
+  notify:
+    - Start kraken-redis service
+    - Start kraken-origin service
+    - Start kraken-tracker service
+    - Start kraken-build-index service
 
 - name: Install kraken-redis service
   template:

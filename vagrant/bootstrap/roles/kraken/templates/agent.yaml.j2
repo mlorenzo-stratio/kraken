@@ -1,22 +1,25 @@
-{#
-extends: base.yaml
+extends: agent_base.yaml
 
 tracker:
   hosts:
     static:
-      - host.docker.internal:15003
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ tracker_port }}
+{% endfor %}
 
 build_index:
   hosts:
     static:
-      - host.docker.internal:15004
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ build_index_port }}
+{% endfor %}
 
 tls:
   name: kraken
   cas:
-  - path: /etc/kraken/tls/ca/server.crt
+  - path: /etc/kraken/tls/ca/ca.crt
   server:
-    disabled: true
+    disabled: false
     cert:
       path: /etc/kraken/tls/ca/server.crt
     key:
@@ -30,26 +33,26 @@ tls:
       path: /etc/kraken/tls/client/client.key
     passphrase:
       path: /etc/kraken/tls/client/passphrase
-#}
 
-extends: base.yaml
+
+{# extends: base.yaml
 
 tracker:
   hosts:
     static:
-{% for herd_host in kraken_herd_hosts %}
-      - {{ herd_host }}:{{ kraken_tracker_port }}
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ tracker_port }}
 {% endfor %}
 
 build_index:
   hosts:
     static:
-{% for herd_host in kraken_herd_hosts %}
-      - {{ herd_host }}:{{ kraken_build_index_port }}
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ build_index_port }}
 {% endfor %}
 
 tls:
-  name: kraken
+  name: registry.kraken.cluster
   cas:
   - path: {{ kraken_config_dir }}/tls/server.crt
   server:
@@ -71,3 +74,4 @@ tls:
     passphrase:
       path: {{ kraken_config_dir }}/tls/client.passphrase
 {% endif %}
+ #}

@@ -1,5 +1,4 @@
-{#
-extends: base.yaml
+extends: build-index_base.yaml
 
 backends:
   - namespace: library/.*
@@ -10,22 +9,20 @@ backends:
           basic:
             username: ""
             password: ""
-  - namespace: .*
-    backend:
-      testfs:
-        addr: host.docker.internal:14000
-        root: tags
-        name_path: docker_tag
 
 cluster:
   hosts:
     static:
-      - host.docker.internal:15004
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ build_index_port }}
+{% endfor %}
 
 origin:
   hosts:
     static:
-      - host.docker.internal:15002
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ origin_server_port }}
+{% endfor %}
 
 remotes: {}
 
@@ -46,13 +43,14 @@ writeback:
   poll_retries_interval: 250ms
 
 nginx:
-  cache_dir: /tmp/kraken-build-index-nginx/
+  cache_dir: {{ kraken_cache_dir }}/build-index
 
 tls:
   name: kraken
   cas:
-  - path: /etc/kraken/tls/ca/server.crt
+  - path: /etc/kraken/tls/ca/ca.crt
   server:
+    disabled: false
     cert:
       path: /etc/kraken/tls/ca/server.crt
     key:
@@ -66,9 +64,8 @@ tls:
       path: /etc/kraken/tls/client/client.key
     passphrase:
       path: /etc/kraken/tls/client/passphrase
-#}
 
-extends: kraken-build-index_base.yaml
+{# extends: kraken-build-index_base.yaml
 
 backends:
   - namespace: library/.*
@@ -83,15 +80,15 @@ backends:
 cluster:
   hosts:
     static:
-{% for herd_host in kraken_herd_hosts %}
-      - {{ herd_host }}:{{ kraken_build_index_port }}
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ build_index_port }}
 {% endfor %}
 
 origin:
   hosts:
     static:
-{% for herd_host in kraken_herd_hosts %}
-      - {{ herd_host }}:{{ kraken_origin_server_port }}
+{% for herd_host in herd_hosts %}
+      - {{ herd_host }}:{{ origin_server_port }}
 {% endfor %}
 
 remotes: {}
@@ -137,4 +134,4 @@ tls:
 {% if tls_certificates.kraken_build_index.client_passphrase is defined %}
     passphrase:
       path: {{ kraken_config_dir }}/tls-build-index/client.passphrase
-{% endif %}
+{% endif %} #}

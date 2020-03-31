@@ -26,8 +26,9 @@ writeback:
 tls:
   name: kraken
   cas:
-  - path: /etc/kraken/tls/ca/server.crt
+  - path: /etc/kraken/tls/ca/ca.crt
   server:
+    disabled: false
     cert:
       path: /etc/kraken/tls/ca/server.crt
     key:
