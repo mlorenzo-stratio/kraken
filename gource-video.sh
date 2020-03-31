@@ -7,7 +7,7 @@
 gource  \
 	--user-image-dir .git/avatar/ \
         -s .5 \
-        -1920x1080 \
+        -1280x720 \
 	--multi-sampling \
 	--stop-at-end \
 	--key \

@@ -42,12 +42,13 @@ REGISTRY ?= gcr.io/uber-container-tools
 build: $(LINUX_BINS)
 	mkdir -p bin/
 	cp ./agent/agent ./build-index/build-index ./origin/origin ./proxy/proxy ./tools/bin/testfs/testfs ./tracker/tracker bin/
+	mkdir -p vagrant/bootstrap/roles/kraken/files/
 	cp ./agent/agent vagrant/bootstrap/roles/kraken/files/kraken-agent
 	cp ./origin/origin vagrant/bootstrap/roles/kraken/files/kraken-origin
 	cp ./tracker/tracker vagrant/bootstrap/roles/kraken/files/kraken-tracker
 	cp ./build-index/build-index vagrant/bootstrap/roles/kraken/files/kraken-build-index
-	cp ./redis/bin/redis-server vagrant/bootstrap/roles/kraken/files/redis-server
 	redis/build.sh
+	cp ./redis/bin/redis-server vagrant/bootstrap/roles/kraken/files/redis-server
 
 agent/agent:: $(wildcard agent/*.go)
 	$(CROSS_COMPILER)
