@@ -82,8 +82,6 @@
     dest: "{{ item.dest }}"
     owner: "{{ user }}"
   with_items:
-    # - { src: "tls",    dest: "{{ kraken_config_dir }}/" }
-    # - { src: "tls/ca/server.crt",                                 dest: "{{ kraken_config_dir }}/tls/ca/ca.crt" }
     - { src: ".certs/ca.bundle",                                dest: "{{ kraken_config_dir }}/tls/ca/ca.crt" }
     - { src: ".certs/{{ ansible_hostname }}_client.pem",        dest: "{{ kraken_config_dir }}/tls/client/client.crt" }
     - { src: ".certs/{{ ansible_hostname }}_client.key",        dest: "{{ kraken_config_dir }}/tls/client/client.key" }

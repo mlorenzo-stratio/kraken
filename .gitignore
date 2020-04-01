@@ -81,6 +81,6 @@ vagrant/bootstrap/roles/kraken/files/kraken-agent
 vagrant/bootstrap/roles/kraken/files/kraken-build-index
 vagrant/bootstrap/roles/kraken/files/kraken-origin
 vagrant/bootstrap/roles/kraken/files/kraken-tracker
-vagrant/bootstrap/roles/kraken/files/config
-vagrant/bootstrap/roles/kraken/files/tls
 vagrant/bootstrap/roles/kraken/files/.certs
+
+gource-video.mp4
