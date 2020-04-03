@@ -11,6 +11,7 @@ docker run -d \
     -p ${AGENT_SERVER_PORT}:${AGENT_SERVER_PORT} \
     -p ${AGENT_REGISTRY_PORT}:${AGENT_REGISTRY_PORT} \
     -v $(pwd)/examples/devcluster/config/agent/development.yaml:/etc/kraken/config/agent/development.yaml \
+    -v $(pwd)/examples/devcluster/agent_two_param.sh:/etc/kraken/agent_param.sh \
+    -v $(pwd)/examples/devcluster/agent_start_process.sh:/etc/kraken/agent_start_process.sh \
     --name ${AGENT_CONTAINER_NAME} \
-    kraken-agent:dev \
-    /usr/bin/kraken-agent --config=/etc/kraken/config/agent/development.yaml --peer-ip=${HOSTNAME} --peer-port=${AGENT_PEER_PORT} --agent-server-port=${AGENT_SERVER_PORT} --agent-registry-port=${AGENT_REGISTRY_PORT}
+    kraken-agent:dev ./agent_start_process.sh

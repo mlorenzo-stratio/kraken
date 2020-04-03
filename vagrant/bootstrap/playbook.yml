@@ -5,11 +5,11 @@
     - name: Adding hosts to /etc/hosts file
       lineinfile:
         dest: /etc/hosts
-        regexp: '^{{hostvars[item]["ansible_default_ipv4"]["address"]}}\s+'
-        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} {{hostvars[item]['ansible_hostname']}} herd.kraken.cluster"
+        regexp: '^{{ hostvars[item]["ansible_default_ipv4"]["address"] }}\s+'
+        line: "{{ hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn'] }} {{ hostvars[item]['ansible_hostname'] }} herd.kraken.cluster"
         backup: yes
         state: present
-      with_items: "{{groups['herd']}}"
+      with_items: "{{ groups['herd'] }}"
 
 - hosts: localhost
   tasks:
@@ -21,14 +21,23 @@
 - hosts: localhost
   become: true
   tasks:
-    - name: Adding kraken to /etc/hosts file
+    - name: Adding kraken agents to /etc/hosts file
       lineinfile:
         dest: /etc/hosts
-        regexp: '^.*\s+kraken$'
-        line: "{{hostvars[item]['ansible_default_ipv4']['address']}} {{hostvars[item]['ansible_fqdn']}} registry registry.kraken.cluster"
+        regexp: "^.*{{ hostvars[item]['ansible_fqdn'] }}.*$"
+        line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ hostvars[item]['ansible_fqdn'] }} registry registry.kraken.cluster"
         backup: yes
         state: present
-      with_items: "{{groups['agents'][0]}}"
+      with_items: "{{ groups['agents'] }}"
+
+    - name: Adding kraken herd to /etc/hosts file
+      lineinfile:
+        dest: /etc/hosts
+        regexp: "^.*{{ hostvars[item]['ansible_fqdn'] }}.*$"
+        line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ hostvars[item]['ansible_fqdn'] }} herd herd.kraken.cluster"
+        backup: yes
+        state: present
+      with_items: "{{ groups['herd'] }}"
 
     - name: Create /etc/docker/certs.d folders
       file:

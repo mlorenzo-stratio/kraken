@@ -36,6 +36,8 @@ sleep 3
 
 sleep 3
 
+chmod o+w /tmp/*.sock
+
 # Poor man's supervisor.
 while : ; do
     # for c in redis-server kraken-testfs kraken-origin kraken-tracker kraken-build-index kraken-proxy; do

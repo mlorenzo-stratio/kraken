@@ -3,11 +3,30 @@
     name: epel-release
     state: latest
 
+- name: Copy nginx RPM
+  copy:
+    src: nginx-1.10.3-1.el7.ngx.x86_64.rpm
+    dest: /tmp
+
+# https://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.10.3-1.el7.ngx.x86_64.rpm
 - name: Install packages
   yum:
-    name: nginx-1.16.1
+    name: /tmp/nginx-1.10.3-1.el7.ngx.x86_64.rpm
     state: latest
   notify: Start kraken-agent service
+
+- name: Backup nginx default configuration
+  copy:
+    remote_src: true
+    src: /etc/nginx/conf.d/default.conf
+    dest: /etc/nginx/conf.d/default.conf.not
+  failed_when: false
+
+- name: Remove nginx default configuration
+  file:
+    path: /etc/nginx/conf.d/default.conf
+    state: absent
+  failed_when: false
 
 - name: Create {{ group }} group
   group:
@@ -33,6 +52,7 @@
     state: directory
     owner: "{{ user }}"
     group: "{{ group }}"
+    recurse: yes
   with_items:
     - "{{ kraken_config_dir }}/tls/ca"
     - "{{ kraken_config_dir }}/tls/client"
